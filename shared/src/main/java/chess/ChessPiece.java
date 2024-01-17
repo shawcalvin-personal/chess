@@ -56,6 +56,11 @@ public class ChessPiece {
         ChessPiece myPiece = board.getPiece(myPosition);
         return switch(myPiece.getPieceType()) {
             case BISHOP -> getBishopMoves(board, myPosition);
+            case ROOK -> getRookMoves(board, myPosition);
+            case QUEEN -> getQueenMoves(board, myPosition);
+            case KING -> getKingMoves(board, myPosition);
+            case KNIGHT -> getKnightMoves(board, myPosition);
+            case PAWN -> getPawnMoves(board, myPosition);
             default -> null;
         };
     }
@@ -80,6 +85,84 @@ public class ChessPiece {
         return validMoves;
     }
 
+    private Collection<ChessMove> getRookMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> validMoves = new HashSet<>();
+        final int startRow = myPosition.getRow();
+        final int startCol = myPosition.getColumn();
+
+        boolean shouldContinueSearchUp = true;
+        boolean shouldContinueSearchDown = true;
+        boolean shouldContinueSearchLeft = true;
+        boolean shouldContinueSearchRight = true;
+
+        for (int i = 1; i <= 8; i++) {
+            shouldContinueSearchUp = validateMove(board, myPosition, new ChessPosition(startRow + i, startCol), shouldContinueSearchUp, validMoves);
+            shouldContinueSearchDown = validateMove(board, myPosition, new ChessPosition(startRow - i, startCol), shouldContinueSearchDown, validMoves);
+            shouldContinueSearchRight = validateMove(board, myPosition, new ChessPosition(startRow, startCol + i), shouldContinueSearchRight, validMoves);
+            shouldContinueSearchLeft = validateMove(board, myPosition, new ChessPosition(startRow, startCol - i), shouldContinueSearchLeft, validMoves);
+
+        }
+        return validMoves;
+    }
+
+    private Collection<ChessMove> getQueenMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> validMoves = new HashSet<>();
+        validMoves.addAll(getBishopMoves(board, myPosition));
+        validMoves.addAll(getRookMoves(board, myPosition));
+        return validMoves;
+    }
+
+    private Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> validMoves = new HashSet<>();
+        final int startRow = myPosition.getRow();
+        final int startCol = myPosition.getColumn();
+
+        validateMove(board, myPosition, new ChessPosition(startRow + 1, startCol + 1), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow + 1, startCol - 1), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow - 1, startCol + 1), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow - 1, startCol - 1), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow + 1, startCol), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow - 1, startCol), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow, startCol + 1), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow, startCol - 1), true, validMoves);
+
+        return validMoves;
+    }
+
+    private Collection<ChessMove> getKnightMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> validMoves = new HashSet<>();
+        final int startRow = myPosition.getRow();
+        final int startCol = myPosition.getColumn();
+
+        validateMove(board, myPosition, new ChessPosition(startRow + 2, startCol + 1), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow + 1, startCol + 2), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow + 2, startCol - 1), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow + 1, startCol - 2), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow - 2, startCol + 1), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow - 1, startCol + 2), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow - 2, startCol - 1), true, validMoves);
+        validateMove(board, myPosition, new ChessPosition(startRow - 1, startCol - 2), true, validMoves);
+
+        return validMoves;
+    }
+
+    private Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> validMoves = new HashSet<>();
+        final ChessGame.TeamColor teamColor = board.getPiece(myPosition).getTeamColor();
+        final int moveDirection = teamColor.equals(ChessGame.TeamColor.WHITE) ? 1 : -1;
+        final int startRow = myPosition.getRow();
+        final int startCol = myPosition.getColumn();
+
+        if (pawnHasNotMoved(myPosition, teamColor)) {
+            validatePawnMove(board, myPosition, new ChessPosition(startRow + moveDirection * 2, startCol), teamColor, moveDirection, validMoves);
+        }
+        validatePawnMove(board, myPosition, new ChessPosition(startRow + moveDirection, startCol), teamColor, moveDirection, validMoves);
+        validatePawnMove(board, myPosition, new ChessPosition(startRow + moveDirection, startCol + 1), teamColor, moveDirection, validMoves);
+        validatePawnMove(board, myPosition, new ChessPosition(startRow + moveDirection, startCol - 1), teamColor, moveDirection, validMoves);
+
+        return validMoves;
+    }
+
     /**
      * Assumes that the piece can move to the square, ignoring blocks, checks, and captures
      * Validates that the square is a valid square and the piece's path to the square is not blocked
@@ -100,8 +183,45 @@ public class ChessPiece {
         return false;
     }
 
+    private void validatePawnMove(ChessBoard board, ChessPosition startPosition, ChessPosition endPosition, ChessGame.TeamColor teamColor, int moveDirection, HashSet<ChessMove> validMoves) {
+        int yMov = Math.abs(endPosition.getRow() - startPosition.getRow());
+        int xMov = Math.abs(endPosition.getColumn() - startPosition.getColumn());
+        int promotionRank = teamColor.equals(ChessGame.TeamColor.WHITE) ? 8 : 1;
+        boolean isPromotion = endPosition.getRow() == promotionRank;
+        ChessPiece endPiece = board.getPiece(endPosition);
+        // validate forward move
+        if (yMov == 1 && xMov == 0 && endPiece == null) {
+            validatePawnMoveWithPromotion(isPromotion, startPosition, endPosition, validMoves);
+        }
+        // validate double forward move
+        if (yMov == 2 && xMov == 0 && endPiece == null) {
+            ChessPosition skippedPosition = new ChessPosition(startPosition.getRow() + moveDirection, startPosition.getColumn());
+            if (board.getPiece(skippedPosition) == null) {
+                validatePawnMoveWithPromotion(isPromotion, startPosition, endPosition, validMoves);
+            }
+        } // validate captures
+        if (yMov == 1 && xMov != 0 && endPiece != null && !endPiece.getTeamColor().equals(teamColor)) {
+            validatePawnMoveWithPromotion(isPromotion, startPosition, endPosition, validMoves);
+        }
+    }
+
     private boolean isValidPosition(ChessPosition position) {
         return position.getRow() > 0 && position.getRow() <= 8 && position.getColumn() > 0 && position.getColumn() <= 8;
+    }
+
+    private boolean pawnHasNotMoved(ChessPosition pawnSquare, ChessGame.TeamColor teamColor) {
+        return (teamColor.equals(ChessGame.TeamColor.WHITE) && pawnSquare.getRow() == 2) || (teamColor.equals(ChessGame.TeamColor.BLACK) && pawnSquare.getRow() == 7);
+    }
+
+    private void validatePawnMoveWithPromotion(boolean isPromotion, ChessPosition startPosition, ChessPosition endPosition, HashSet<ChessMove> validMoves) {
+        if (isPromotion) {
+            validMoves.add(new ChessMove(startPosition, endPosition, PieceType.QUEEN));
+            validMoves.add(new ChessMove(startPosition, endPosition, PieceType.ROOK));
+            validMoves.add(new ChessMove(startPosition, endPosition, PieceType.BISHOP));
+            validMoves.add(new ChessMove(startPosition, endPosition, PieceType.KNIGHT));
+        } else {
+            validMoves.add(new ChessMove(startPosition, endPosition, null));
+        }
     }
 
     @Override
