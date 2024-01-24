@@ -9,9 +9,9 @@ import java.util.Arrays;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    ChessPiece[][] squares = new ChessPiece[8][8];
+    ChessPiece[][] squares;
     public ChessBoard() {
-
+        this.squares = new ChessPiece[8][8];
     }
 
     /**
@@ -33,6 +33,12 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         return squares[position.getRow() - 1][position.getColumn() - 1];
+    }
+
+    public void removePiece(ChessPosition position) {
+        if (getPiece(position) != null) {
+            this.squares[position.getRow() - 1][position.getColumn() - 1] = null;
+        }
     }
 
     /**
@@ -75,6 +81,6 @@ public class ChessBoard {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(squares);
+        return Arrays.deepHashCode(squares);
     }
 }
