@@ -9,10 +9,8 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessPosition {
-
-    private final int row;
-    private final int col;
-
+    private int row;
+    private int col;
     public ChessPosition(int row, int col) {
         this.row = row;
         this.col = col;
@@ -23,7 +21,7 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        return row;
+        return this.row;
     }
 
     /**
@@ -31,12 +29,15 @@ public class ChessPosition {
      * 1 codes for the left row
      */
     public int getColumn() {
-        return col;
+        return this.col;
     }
 
     @Override
     public String toString() {
-        return "{" + row + ", " + col + "}";
+        return "ChessPosition{" +
+                "row=" + row +
+                ", col=" + col +
+                '}';
     }
 
     @Override
