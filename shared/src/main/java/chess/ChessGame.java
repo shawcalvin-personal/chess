@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -12,9 +13,11 @@ public class ChessGame {
 
     ChessBoard board;
     TeamColor teamTurn;
+    ChessPosition whiteKingPosition;
+    ChessPosition blackKingPosition;
     public ChessGame() {
         this.board = null;
-        this.teamTurn = TeamColor.WHITE;
+        this.teamTurn = null;
     }
 
     /**
@@ -49,7 +52,28 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = this.board.getPiece(startPosition);
+        if (piece != null) {
+            return piece.pieceMoves(this.board, startPosition);
+        }
+        return null;
+    }
+
+    private boolean isValidMove(ChessMove move) {
+        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+        ChessPiece movePiece = this.board.getPiece(move.getStartPosition());
+        boolean isValidIgnoringChecks = validMoves != null && validMoves.contains(move) && movePiece.getTeamColor().equals(this.teamTurn);
+        if (!isValidIgnoringChecks) {
+            return false;
+        }
+        ChessPiece capturedPiece = doMove(move);
+        boolean isValid = !isInCheck(this.teamTurn);
+        undoMove(move, capturedPiece);
+        return isValid;
+    }
+
+    private void updateTeamColor() {
+        this.setTeamTurn(this.teamTurn == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
     }
 
     /**
@@ -60,30 +84,29 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece piece = this.board.getPiece(move.getStartPosition());
-        System.out.println("Attempting " + piece.pieceType + " move: " + move);
-        if (!isValidMove(move, piece)) {
-            System.out.println("Move Invalid!");
+        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+         if (!isValidMove(move)) {
             throw new InvalidMoveException();
         }
-        System.out.println("Move valid!");
-        this.board.addPiece(move.getEndPosition(), piece);
-        this.board.removePiece(move.getStartPosition());
-        this.setTeamTurn(this.teamTurn == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+        doMove(move);
+        updateTeamColor();
     }
 
-    private boolean isValidMove(ChessMove move, ChessPiece piece) {
-        ChessPosition startPosition = move.getStartPosition();
-        if (piece == null) {
-            return false;
+    private ChessPiece doMove(ChessMove move) {
+        ChessPiece movedPiece = this.board.getPiece(move.getStartPosition());
+        ChessPiece capturedPiece = this.board.getPiece(move.getEndPosition());
+        this.board.addPiece(move.getEndPosition(), movedPiece);
+        this.board.removePiece(move.getStartPosition());
+        return capturedPiece;
+    }
+
+    private void undoMove(ChessMove move, ChessPiece capturedPiece) {
+        ChessPiece movedPiece = board.getPiece(move.getEndPosition());
+        this.board.addPiece(move.getStartPosition(), movedPiece);
+        this.board.removePiece(move.getEndPosition());
+        if (capturedPiece != null) {
+            this.board.addPiece(move.getEndPosition(), capturedPiece);
         }
-        if (piece.pieceColor != this.teamTurn) {
-            return false;
-        }
-        Collection<ChessMove> validMoves = piece.pieceMoves(this.board, startPosition);
-        if (!validMoves.contains(move)) {
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -93,7 +116,36 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece;
+        ChessPosition kingPosition = null;
+        Collection<ChessPosition> attackedPositions = new HashSet<>();
+        Collection<ChessMove> attackMoves;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                piece = this.board.squares[i][j];
+                if (piece == null) {
+                    continue;
+                }
+                if (!piece.getTeamColor().equals(teamColor)) {
+                    attackedPositions.addAll(getAttackedPositions(new ChessPosition(i + 1, j + 1)));
+                }
+                if (piece.getTeamColor().equals(teamColor) && piece.getPieceType().equals(ChessPiece.PieceType.KING)) {
+                    kingPosition = new ChessPosition(i + 1, j + 1);
+                }
+            }
+        }
+        return attackedPositions.contains(kingPosition);
+    }
+
+    private Collection<ChessPosition> getAttackedPositions(ChessPosition startPosition) {
+        Collection<ChessMove> validMoves = validMoves(startPosition);
+        Collection<ChessPosition> attackedPositions = new HashSet<>();
+        if (validMoves != null) {
+            for (var move : validMoves) {
+                attackedPositions.add(move.getEndPosition());
+            }
+        }
+        return attackedPositions;
     }
 
     /**
@@ -124,6 +176,7 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
+        this.setKingPositions();
     }
 
     /**
@@ -133,5 +186,20 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
+    }
+
+    private void setKingPositions() {
+        ChessPiece piece;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                piece = this.board.squares[i][j];
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING)
+                    if (piece.getTeamColor() == TeamColor.WHITE) {
+                    this.whiteKingPosition = new ChessPosition(i + 1, j + 1);
+                    } else if (piece.getTeamColor() == TeamColor.BLACK) {
+                    this.blackKingPosition = new ChessPosition(i + 1, j + 1);
+                }
+            }
+        }
     }
 }
