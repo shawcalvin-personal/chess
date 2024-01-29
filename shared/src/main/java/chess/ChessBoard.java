@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -9,9 +10,9 @@ import java.util.Arrays;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    ChessPiece[][] squares;
+    private ChessPiece[] squares;
     public ChessBoard() {
-        this.squares = new ChessPiece[8][8];
+        this.squares = new ChessPiece[64];
     }
 
     /**
@@ -21,7 +22,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        squares[position.getRow() - 1][position.getColumn() - 1] = piece;
+        this.squares[getIndex(position)] = piece;
     }
 
     /**
@@ -32,13 +33,17 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return squares[position.getRow() - 1][position.getColumn() - 1];
+        return squares[getIndex(position)];
     }
 
     public void removePiece(ChessPosition position) {
         if (getPiece(position) != null) {
-            this.squares[position.getRow() - 1][position.getColumn() - 1] = null;
+            this.squares[getIndex(position)] = null;
         }
+    }
+
+    private int getIndex(ChessPosition position) {
+        return (position.getRow() - 1) * 8 + position.getColumn() - 1;
     }
 
     /**
@@ -46,7 +51,7 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        squares = new ChessPiece[8][8];
+        squares = new ChessPiece[64];
         this.addPiece(new ChessPosition(1, 1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
         this.addPiece(new ChessPosition(1, 2), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
         this.addPiece(new ChessPosition(1, 3), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));

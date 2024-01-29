@@ -116,25 +116,26 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPiece piece;
-        ChessPosition kingPosition = null;
-        Collection<ChessPosition> attackedPositions = new HashSet<>();
-        Collection<ChessMove> attackMoves;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                piece = this.board.squares[i][j];
-                if (piece == null) {
-                    continue;
-                }
-                if (!piece.getTeamColor().equals(teamColor)) {
-                    attackedPositions.addAll(getAttackedPositions(new ChessPosition(i + 1, j + 1)));
-                }
-                if (piece.getTeamColor().equals(teamColor) && piece.getPieceType().equals(ChessPiece.PieceType.KING)) {
-                    kingPosition = new ChessPosition(i + 1, j + 1);
-                }
-            }
-        }
-        return attackedPositions.contains(kingPosition);
+//        ChessPiece piece;
+//        ChessPosition kingPosition = null;
+//        Collection<ChessPosition> attackedPositions = new HashSet<>();
+//        Collection<ChessMove> attackMoves;
+//        for (int i = 0; i < 8; i++) {
+//            for (int j = 0; j < 8; j++) {
+//                piece = this.board.squares[i][j];
+//                if (piece == null) {
+//                    continue;
+//                }
+//                if (!piece.getTeamColor().equals(teamColor)) {
+//                    attackedPositions.addAll(getAttackedPositions(new ChessPosition(i + 1, j + 1)));
+//                }
+//                if (piece.getTeamColor().equals(teamColor) && piece.getPieceType().equals(ChessPiece.PieceType.KING)) {
+//                    kingPosition = new ChessPosition(i + 1, j + 1);
+//                }
+//            }
+//        }
+//        return attackedPositions.contains(kingPosition);
+        return true;
     }
 
     private Collection<ChessPosition> getAttackedPositions(ChessPosition startPosition) {
@@ -176,7 +177,6 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
-        this.setKingPositions();
     }
 
     /**
@@ -186,20 +186,5 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
-    }
-
-    private void setKingPositions() {
-        ChessPiece piece;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                piece = this.board.squares[i][j];
-                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING)
-                    if (piece.getTeamColor() == TeamColor.WHITE) {
-                    this.whiteKingPosition = new ChessPosition(i + 1, j + 1);
-                    } else if (piece.getTeamColor() == TeamColor.BLACK) {
-                    this.blackKingPosition = new ChessPosition(i + 1, j + 1);
-                }
-            }
-        }
     }
 }
