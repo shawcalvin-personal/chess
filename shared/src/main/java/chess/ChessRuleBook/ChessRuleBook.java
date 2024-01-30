@@ -80,10 +80,24 @@ public class ChessRuleBook {
     }
 
     public boolean isInCheckMake(ChessBoard board, ChessGame.TeamColor teamTurn) {
-        return true;
+        return isInCheck(board, teamTurn) && isInStalemate(board, teamTurn);
     }
 
     public boolean isInStalemate(ChessBoard board, ChessGame.TeamColor teamTurn) {
-        return true;
+        Collection<ChessMove> validMoves = new HashSet<>();
+        ChessPiece piece;
+        for (int i = 0; i < board.getSquares().length; i++) {
+            piece = board.getSquares()[i];
+            if (piece != null && piece.getTeamColor().equals(teamTurn)) {
+                System.out.println("BOARD BEFORE VALID CALL: " + board);
+                ChessPosition newPosition = new ChessPosition(board.getBoardRow(i), board.getBoardColumn(i));
+//                System.out.println("POSITION: " + newPosition);
+//                System.out.println("PIECE: " + piece);
+//                System.out.println("BOARD PIECE: " + board.getPiece(newPosition));
+                validMoves.addAll(this.validMoves(board, newPosition, teamTurn));
+                System.out.println("BOARD AFTER VALID CALL: " + board);
+            }
+        }
+        return validMoves.isEmpty();
     }
 }
