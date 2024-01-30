@@ -1,7 +1,8 @@
 package chess;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Stack;
+
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -11,8 +12,15 @@ import java.util.Collection;
  */
 public class ChessBoard {
     private ChessPiece[] squares;
+    private Stack<ChessBoard> history;
     public ChessBoard() {
         this.squares = new ChessPiece[64];
+        this.history = new Stack<>();
+    }
+
+    public ChessBoard(ChessBoard board) {
+        this.squares = board.squares.clone();
+        this.history = null;
     }
 
     /**
@@ -42,8 +50,34 @@ public class ChessBoard {
         }
     }
 
+    public void movePiece(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece) {
+        this.history.push(new ChessBoard(this));
+        if (promotionPiece != null) {
+            this.addPiece(endPosition, new ChessPiece(this.getPiece(startPosition).getTeamColor(), promotionPiece));
+        } else {
+            this.addPiece(endPosition, this.getPiece(startPosition));
+        }
+        this.removePiece(startPosition);
+    }
+
+    public void undoLastMove() {
+        this.squares = this.history.pop().squares;
+    }
+
+    public ChessPiece[] getSquares() {
+        return this.squares;
+    }
+
     private int getIndex(ChessPosition position) {
         return (position.getRow() - 1) * 8 + position.getColumn() - 1;
+    }
+
+    public int getBoardRow(int index) {
+        return (index / 8) + 1;
+    }
+
+    public int getBoardColumn(int index) {
+        return index % 8 + 1;
     }
 
     /**
