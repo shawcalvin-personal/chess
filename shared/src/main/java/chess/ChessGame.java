@@ -52,7 +52,7 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        return this.ruleBook.validMoves(this.board, startPosition, this.teamTurn);
+        return this.ruleBook.validMoves(this.board, startPosition);
     }
 
     /**
@@ -63,7 +63,7 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
-         if (!validMoves.contains(move)) {
+         if (this.board.getPiece(move.getStartPosition()).getTeamColor() != this.teamTurn || !validMoves.contains(move)) {
             throw new InvalidMoveException();
         }
         this.board.movePiece(move.getStartPosition(), move.getEndPosition(), move.getPromotionPiece());

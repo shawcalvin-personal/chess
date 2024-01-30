@@ -20,9 +20,11 @@ public class ChessRuleBook {
         this.pawnMovementRule = new PawnMovementRule();
     }
 
-    public Collection<ChessMove> validMoves(ChessBoard board, ChessPosition position, ChessGame.TeamColor teamTurn) {
-        Collection<ChessMove> validMovesIgnoringCheck = validMovesIgnoringCheck(board, position, teamTurn);
+    public Collection<ChessMove> validMoves(ChessBoard board, ChessPosition position) {
+        Collection<ChessMove> validMovesIgnoringCheck = validMovesIgnoringCheck(board, position);
         Collection<ChessMove> validMoves = new HashSet<>();
+        ChessPiece piece = board.getPiece(position);
+        ChessGame.TeamColor teamTurn = piece == null ? null : piece.getTeamColor();
         for (var move : validMovesIgnoringCheck) {
             board.movePiece(move.getStartPosition(), move.getEndPosition(), move.getPromotionPiece());
             if (!isInCheck(board, teamTurn)) {
@@ -33,10 +35,7 @@ public class ChessRuleBook {
         return validMoves;
     }
 
-    private Collection<ChessMove> validMovesIgnoringCheck(ChessBoard board, ChessPosition position, ChessGame.TeamColor teamTurn) {
-        if (teamTurn != board.getPiece(position).getTeamColor()) {
-            return new HashSet<>();
-        }
+    private Collection<ChessMove> validMovesIgnoringCheck(ChessBoard board, ChessPosition position) {
         return switch (board.getPiece(position).getPieceType()) {
             case KING -> this.kingMovementRule.getValidMoves(board, position);
             case QUEEN -> this.queenMovementRule.getValidMoves(board,position);
@@ -48,7 +47,7 @@ public class ChessRuleBook {
     }
 
     private Collection<ChessPosition> getAttackedPositions(ChessBoard board, ChessPosition position) {
-        Collection<ChessMove> validMoves = validMovesIgnoringCheck(board, position, board.getPiece(position).getTeamColor());
+        Collection<ChessMove> validMoves = validMovesIgnoringCheck(board, position);
         Collection<ChessPosition> attackedPositions = new HashSet<>();
         if (validMoves != null) {
             for (var move : validMoves) {
@@ -89,13 +88,7 @@ public class ChessRuleBook {
         for (int i = 0; i < board.getSquares().length; i++) {
             piece = board.getSquares()[i];
             if (piece != null && piece.getTeamColor().equals(teamTurn)) {
-                System.out.println("BOARD BEFORE VALID CALL: " + board);
-                ChessPosition newPosition = new ChessPosition(board.getBoardRow(i), board.getBoardColumn(i));
-//                System.out.println("POSITION: " + newPosition);
-//                System.out.println("PIECE: " + piece);
-//                System.out.println("BOARD PIECE: " + board.getPiece(newPosition));
-                validMoves.addAll(this.validMoves(board, newPosition, teamTurn));
-                System.out.println("BOARD AFTER VALID CALL: " + board);
+                validMoves.addAll(this.validMoves(board, new ChessPosition(board.getBoardRow(i), board.getBoardColumn(i))));
             }
         }
         return validMoves.isEmpty();
