@@ -50,14 +50,14 @@ public class ChessBoard {
         }
     }
 
-    public void movePiece(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece) {
+    public void movePiece(ChessMove move) {
         this.history.push(new ChessBoard(this));
-        if (promotionPiece != null) {
-            this.addPiece(endPosition, new ChessPiece(this.getPiece(startPosition).getTeamColor(), promotionPiece));
+        if (move.getPromotionPiece() != null) {
+            this.addPiece(move.getEndPosition(), new ChessPiece(this.getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece()));
         } else {
-            this.addPiece(endPosition, this.getPiece(startPosition));
+            this.addPiece(move.getEndPosition(), this.getPiece(move.getStartPosition()));
         }
-        this.removePiece(startPosition);
+        this.removePiece(move.getStartPosition());
     }
 
     public void undoLastMove() {

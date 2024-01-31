@@ -66,7 +66,7 @@ public class ChessGame {
          if (this.board.getPiece(move.getStartPosition()).getTeamColor() != this.teamTurn || !validMoves.contains(move)) {
             throw new InvalidMoveException();
         }
-        this.board.movePiece(move.getStartPosition(), move.getEndPosition(), move.getPromotionPiece());
+        this.board.movePiece(move);
         updateTeamColor();
     }
 

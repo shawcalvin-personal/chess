@@ -26,7 +26,7 @@ public class ChessRuleBook {
         ChessPiece piece = board.getPiece(position);
         ChessGame.TeamColor teamTurn = piece == null ? null : piece.getTeamColor();
         for (var move : validMovesIgnoringCheck) {
-            board.movePiece(move.getStartPosition(), move.getEndPosition(), move.getPromotionPiece());
+            board.movePiece(move);
             if (!isInCheck(board, teamTurn)) {
                 validMoves.add(move);
             }
