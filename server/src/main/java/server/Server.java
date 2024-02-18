@@ -1,11 +1,12 @@
 package server;
 
+import server.responseModels.ServiceResponse;
+import service.*;
 import spark.*;
-
-import java.util.Map;
 
 public class Server {
 
+    UserService userService = new UserService();
     public static void main(String[] args) {
         new Server().run(8080);
     }
@@ -27,33 +28,39 @@ public class Server {
         Spark.awaitInitialization();
         return Spark.port();
     }
-    private Object register(Request req, Response res) {
+    private String register(Request req, Response res) {
         return "{}";
     }
 
-    private Object login(Request req, Response res) {
-        var body = Serializer.getBody(req, Map.class);
-        return Serializer.getJson(body);
+    private String login(Request req, Response res) {
+        var body = Serializer.getBody(req);
+        ServiceResponse serviceResponse = userService.login(body.get("username").toString(), body.get("password").toString());
+        return parseHTTPResponse(serviceResponse, res);
     }
 
-    private Object logout(Request req, Response res) {
+    private String logout(Request req, Response res) {
         return "{}";
     }
 
-    private Object listGames(Request req, Response res) {
+    private String listGames(Request req, Response res) {
         return "{}";
     }
 
-    private Object createGame(Request req, Response res) {
+    private String createGame(Request req, Response res) {
         return "{}";
     }
 
-    private Object joinGame(Request req, Response res) {
+    private String joinGame(Request req, Response res) {
         return "{}";
     }
 
-    private Object clearDatabase(Request req, Response res) {
+    private String clearDatabase(Request req, Response res) {
         return "{}";
+    }
+
+    private String parseHTTPResponse(ServiceResponse serviceResponse, spark.Response res) {
+        res.status(serviceResponse.statusCode());
+        return Serializer.getJson(serviceResponse.response());
     }
 
     public void stop() {
