@@ -1,6 +1,7 @@
 package server;
 
-import server.responseModels.ServiceResponse;
+import dataAccess.DataAccessException;
+import server.responseModels.FailureResponse;
 import service.*;
 import spark.*;
 
@@ -29,17 +30,45 @@ public class Server {
         return Spark.port();
     }
     private String register(Request req, Response res) {
-        return "{}";
+        try {
+            var body = Serializer.getBody(req);
+            return Serializer.getJson(userService.register(body.get("username").toString(), body.get("password").toString(), body.get("email").toString()));
+        } catch (NullPointerException e) {
+            res.status(400);
+            return Serializer.getJson(new FailureResponse("bad request"));
+        } catch (DataAccessException e) {
+            res.status(403);
+            return Serializer.getJson(new FailureResponse(e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
+            return Serializer.getJson(new FailureResponse(e.getMessage()));
+        }
     }
 
     private String login(Request req, Response res) {
-        var body = Serializer.getBody(req);
-        ServiceResponse serviceResponse = userService.login(body.get("username").toString(), body.get("password").toString());
-        return parseHTTPResponse(serviceResponse, res);
+        try {
+            var body = Serializer.getBody(req);
+            return Serializer.getJson(userService.login(body.get("username").toString(), body.get("password").toString()));
+        } catch (UnauthorizedAccessException e) {
+            res.status(401);
+            return Serializer.getJson(new FailureResponse(e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
+            return Serializer.getJson(new FailureResponse(e.getMessage()));
+        }
     }
 
     private String logout(Request req, Response res) {
-        return "{}";
+        try {
+            userService.logout(req.headers("Authorization"));
+            return "{}";
+        } catch (UnauthorizedAccessException e) {
+            res.status(401);
+            return Serializer.getJson(new FailureResponse(e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
+            return Serializer.getJson(new FailureResponse(e.getMessage()));
+        }
     }
 
     private String listGames(Request req, Response res) {
@@ -56,11 +85,6 @@ public class Server {
 
     private String clearDatabase(Request req, Response res) {
         return "{}";
-    }
-
-    private String parseHTTPResponse(ServiceResponse serviceResponse, spark.Response res) {
-        res.status(serviceResponse.statusCode());
-        return Serializer.getJson(serviceResponse.response());
     }
 
     public void stop() {

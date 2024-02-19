@@ -3,7 +3,7 @@ package dataAccess;
 import model.UserData;
 
 public interface UserDAO {
-    UserData createUser(String username, String password, String email);
+    UserData createUser(String username, String password, String email) throws DataAccessException;
     UserData getUser(String username);
     void deleteUser(String username);
     void clearUsers();
