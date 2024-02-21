@@ -1,3 +1,3 @@
 package server.responseModels;
 
-public record RegisterResponse(String username, String authToken) implements HTTPResponse {}
+public record RegisterResponse(String username, String authToken) implements ServiceResponse {}

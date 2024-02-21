@@ -1,20 +1,12 @@
 package service;
 
-public class ClearService {
+import dataAccess.*;
+import dataAccess.MemoryDAO.*;
+
+public class ClearService extends Service {
     public void clearDatabase() {
-        clearAuth();
-        clearUsers();
-        clearGames();
-    }
-    private void clearAuth() {
-
-    }
-
-    private void clearUsers() {
-
-    }
-
-    private void clearGames() {
-
+        userDAO.clearUsers();
+        authDAO.clearAuth();
+        gameDAO.clearGames();
     }
 }

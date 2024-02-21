@@ -1,6 +1,7 @@
 package dataAccess.MemoryDAO;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import model.AuthData;
 
 import java.util.HashMap;
@@ -24,7 +25,10 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth(String authToken) {
+    public void deleteAuth(String authToken) throws DataAccessException {
+        if (getAuth(authToken) == null) {
+            throw new DataAccessException("Invalid auth-token: " + authToken + " - Attempted to delete an auth token that does not exist.");
+        }
         authData.remove(authToken);
     }
 
