@@ -14,7 +14,7 @@ public interface GameDAO {
 
     /*
     Creates a new game using a passed game object
-    Throws a DuplicateDatabaseObjectException if the game already exists
+    Throws a DataAccessException if the game already exists
     Returns the created game object
      */
     GameData createGame(GameData game) throws DataAccessException;
@@ -33,13 +33,13 @@ public interface GameDAO {
 
     /*
     Updates a game using the values of a passed GameData object
-    Throws an InvalidDatabaseTargetException if the target game does not exist
+    Throws an DataAccessException if the target game does not exist
      */
     void updateGame(int gameID, GameData game) throws DataAccessException;
 
     /*
     Deletes a game with an associated gameID
-    Throws an InvalidDatabaseTargetException if the target game does not exist
+    Throws an DataAccessException if the target game does not exist
      */
     void deleteGame(int gameID) throws DataAccessException;
 

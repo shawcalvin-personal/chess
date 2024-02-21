@@ -10,7 +10,7 @@ import java.util.*;
 public class MemoryGameDAO implements GameDAO {
 
     private static Map<Integer, GameData> gameData = new HashMap<>();
-    private static int lastGameID = 0;
+    private static int lastGameID = 1;
 
     @Override
     public GameData createGame(String gameName) {

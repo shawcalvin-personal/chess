@@ -9,9 +9,11 @@ public class Service {
     public static UserDAO userDAO;
     public static GameDAO gameDAO;
     public static AuthDAO authDAO;
-    public static String badRequestMessage;
-    public static String unauthorizedAccessMessage;
-    public static String forbiddenResourceMessage;
+    public static final String badRequestMessage = "Error: bad request";;
+    public static final String unauthorizedAccessMessage = "Error: unauthorized";;
+    public static final String forbiddenResourceMessage = "Error: already taken";;
+    public static final String whiteColor = "WHITE";
+    public static final String blackColor = "BLACK";
 
     Service() {
         init();
@@ -20,10 +22,6 @@ public class Service {
         userDAO = new MemoryUserDAO();
         gameDAO = new MemoryGameDAO();
         authDAO = new MemoryAuthDAO();
-
-        badRequestMessage = "Error: bad request";
-        unauthorizedAccessMessage = "Error: unauthorized";
-        forbiddenResourceMessage = "Error: already taken";
     }
 
     public boolean isValidAuthToken(String authToken) {

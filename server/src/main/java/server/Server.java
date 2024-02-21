@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import server.responseModels.*;
 import service.*;
 import spark.*;
@@ -28,7 +29,7 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
-        Spark.delete("/db", this::clear);
+        Spark.delete("/db", this::clearApplication);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -38,7 +39,6 @@ public class Server {
             ServiceResponse serviceResponse = registerService.register(getRequestParameter(req, "username"), getRequestParameter(req, "password"), getRequestParameter(req, "email"));
             return parseRequest(serviceResponse, res);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             res.status(500);
             return Serializer.getJson(new StatusCodeResponse(e.getMessage()));
         }
@@ -66,72 +66,47 @@ public class Server {
     }
 
     private String listGames(Request req, Response res) {
-//        try {
-//            return Serializer.getJson(gameService.listGames(req.headers("Authorization")));
-//        } catch (BadRequestException e) {
-//            res.status(400);
-//            return Serializer.getJson(new FailureResponse(e.getMessage()));
-//        } catch (UnauthorizedAccessException e) {
-//            res.status(401);
-//            return Serializer.getJson(new FailureResponse(e.getMessage()));
-//        } catch (Exception e) {
-//            res.status(500);
-//            return Serializer.getJson(new FailureResponse(e.getMessage()));
-//        }
-        return "{}";
+        try {
+            ServiceResponse serviceResponse = listGamesService.listGames(req.headers("Authorization"));
+            return parseRequest(serviceResponse, res);
+        } catch (Exception e) {
+            res.status(500);
+            return Serializer.getJson(new StatusCodeResponse(e.getMessage()));
+        }
     }
 
     private String createGame(Request req, Response res) {
-//        try {
-//            var body = Serializer.getBody(req);
-//            return Serializer.getJson(gameService.createGame(req.headers("Authorization"), body.get("gameName").toString()));
-//        } catch (NullPointerException e) {
-//            res.status(400);
-//            return Serializer.getJson(new FailureResponse("Error: bad request"));
-//        } catch (BadRequestException e) {
-//            res.status(400);
-//            return Serializer.getJson(new FailureResponse(e.getMessage()));
-//        } catch (UnauthorizedAccessException e) {
-//            res.status(401);
-//            return Serializer.getJson(new FailureResponse(e.getMessage()));
-//        } catch (Exception e) {
-//            res.status(500);
-//            return Serializer.getJson(new FailureResponse(e.getMessage()));
-//        }
-        return "{}";
+        try {
+            ServiceResponse serviceResponse = createGameService.createGame(req.headers("Authorization"), getRequestParameter(req, "gameName"));
+            return parseRequest(serviceResponse, res);
+        } catch (Exception e) {
+            res.status(500);
+            return Serializer.getJson(new StatusCodeResponse(e.getMessage()));
+        }
     }
 
     private String joinGame(Request req, Response res) {
-//        try {
-//            var body = Serializer.getBody(req);
-//            if (body.get("playerColor").toString().isBlank()) {
-//                gameService.joinGame(req.headers("Authorization"), (int) body.get("gameID"));
-//            } else {
-//                gameService.joinGame(req.headers("Authorization"), body.get("playerColor").toString(), ((Double) body.get("gameID")).intValue());
-//            }
-//            return "{}";
-//        } catch (NullPointerException e) {
-//            res.status(400);
-//            return Serializer.getJson(new FailureResponse("Error: bad request"));
-//        } catch (BadRequestException e) {
-//            res.status(400);
-//            return Serializer.getJson(new FailureResponse(e.getMessage()));
-//        } catch (UnauthorizedAccessException e) {
-//            res.status(401);
-//            return Serializer.getJson(new FailureResponse(e.getMessage()));
-//        } catch (ForbiddenResourceException e) {
-//            res.status(403);
-//            return Serializer.getJson(new FailureResponse(e.getMessage()));
-//        } catch (Exception e) {
-//            res.status(500);
-//            return Serializer.getJson(new FailureResponse(e.getMessage()));
-//        }
-        return "{}";
+        try {
+            var body = Serializer.getBody(req);
+            Double serializedGameID = body.get("gameID") == null ? null : (Double) body.get("gameID");
+            Integer gameID = serializedGameID == null ? null : serializedGameID.intValue();
+            ServiceResponse serviceResponse = joinGameService.joinGame(req.headers("Authorization"), getRequestParameter(req, "playerColor"), gameID);
+            return parseRequest(serviceResponse, res);
+        } catch (Exception e) {
+            System.out.println("ERROR MESSAGE: " + e.getMessage());
+            res.status(500);
+            return Serializer.getJson(new StatusCodeResponse(e.getMessage()));
+        }
     }
 
-    private String clear(Request req, Response res) {
-        clearService.clearDatabase();
-        return "{}";
+    private String clearApplication(Request req, Response res) {
+        try {
+            ServiceResponse serviceResponse = clearService.clearDatabase();
+            return parseRequest(serviceResponse, res);
+        } catch (Exception e) {
+            res.status(500);
+            return Serializer.getJson(new StatusCodeResponse(e.getMessage()));
+        }
     }
 
     private String parseRequest(ServiceResponse serviceResponse, Response res) {

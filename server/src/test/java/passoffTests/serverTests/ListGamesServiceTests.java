@@ -21,6 +21,9 @@ class ListGamesServiceTests {
     private static String existingGameName;
     private static int existingGameID;
 
+    private static String whiteColor;
+    private  static String blackColor;
+
     @BeforeAll
     public static void init() {
         newUsername = "new-username";
@@ -32,6 +35,9 @@ class ListGamesServiceTests {
         existingEmail = "existing-email";
 
         existingGameName = "cool-new-game";
+
+        whiteColor = "WHITE";
+        blackColor = "BLACK";
 
         registerService = new RegisterService();
         createGameService = new CreateGameService();
@@ -55,8 +61,8 @@ class ListGamesServiceTests {
         RegisterResponse registerResponse = (RegisterResponse) registerService.register(newUsername, newPassword, newEmail);
         String newAuthToken = registerResponse.authToken();
 
-        joinGameService.joinGame(existingAuthToken, ChessGame.TeamColor.WHITE, existingGameID);
-        joinGameService.joinGame(newAuthToken, ChessGame.TeamColor.BLACK, existingGameID);
+        joinGameService.joinGame(existingAuthToken, whiteColor, existingGameID);
+        joinGameService.joinGame(newAuthToken, blackColor, existingGameID);
 
         ServiceResponse response = listGamesService.listGames(existingAuthToken);
         Assertions.assertEquals(ListGamesResponse.class, response.getClass());
@@ -69,8 +75,8 @@ class ListGamesServiceTests {
         RegisterResponse registerResponse = (RegisterResponse) registerService.register(newUsername, newPassword, newEmail);
         String newAuthToken = registerResponse.authToken();
 
-        joinGameService.joinGame(existingAuthToken, ChessGame.TeamColor.WHITE, existingGameID);
-        joinGameService.joinGame(newAuthToken, ChessGame.TeamColor.BLACK, existingGameID);
+        joinGameService.joinGame(existingAuthToken, whiteColor, existingGameID);
+        joinGameService.joinGame(newAuthToken, blackColor, existingGameID);
 
         ServiceResponse response = listGamesService.listGames("invalid-auth-token");
         Assertions.assertEquals(FailureResponse.class, response.getClass());
@@ -91,17 +97,17 @@ class ListGamesServiceTests {
         int gameID2 = createGameResponse2.gameID();
         int gameID3 = createGameResponse3.gameID();
 
-        joinGameService.joinGame(existingAuthToken, ChessGame.TeamColor.WHITE, existingGameID);
-        joinGameService.joinGame(newAuthToken, ChessGame.TeamColor.BLACK, existingGameID);
+        joinGameService.joinGame(existingAuthToken, whiteColor, existingGameID);
+        joinGameService.joinGame(newAuthToken, blackColor, existingGameID);
 
-        joinGameService.joinGame(existingAuthToken, ChessGame.TeamColor.WHITE, gameID1);
-        joinGameService.joinGame(newAuthToken, ChessGame.TeamColor.BLACK, gameID1);
+        joinGameService.joinGame(existingAuthToken, whiteColor, gameID1);
+        joinGameService.joinGame(newAuthToken, blackColor, gameID1);
 
-        joinGameService.joinGame(existingAuthToken, ChessGame.TeamColor.WHITE, gameID2);
-        joinGameService.joinGame(newAuthToken, ChessGame.TeamColor.BLACK, gameID2);
+        joinGameService.joinGame(existingAuthToken, whiteColor, gameID2);
+        joinGameService.joinGame(newAuthToken, blackColor, gameID2);
 
-        joinGameService.joinGame(existingAuthToken, ChessGame.TeamColor.WHITE, gameID3);
-        joinGameService.joinGame(newAuthToken, ChessGame.TeamColor.BLACK, gameID3);
+        joinGameService.joinGame(existingAuthToken, whiteColor, gameID3);
+        joinGameService.joinGame(newAuthToken, blackColor, gameID3);
 
 
         ServiceResponse response = listGamesService.listGames(existingAuthToken);

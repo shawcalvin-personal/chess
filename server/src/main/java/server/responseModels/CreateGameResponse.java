@@ -1,4 +1,4 @@
 package server.responseModels;
 
-public record CreateGameResponse(int gameID) implements ServiceResponse {
+public record CreateGameResponse(Integer gameID) implements ServiceResponse {
 }
