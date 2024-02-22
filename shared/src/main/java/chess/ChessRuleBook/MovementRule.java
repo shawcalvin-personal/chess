@@ -17,4 +17,10 @@ public abstract class MovementRule {
     public boolean positionIsCapturable(ChessBoard board, ChessPosition startPosition, ChessPosition endPosition) {
         return positionIsOnBoard(endPosition) && !positionIsEmpty(board, endPosition) && board.getPiece(startPosition).getTeamColor() != board.getPiece(endPosition).getTeamColor();
     }
+
+    public void validateAndAddMove(ChessBoard board, ChessMove move, Collection<ChessMove> validMoves) {
+        if (positionIsOnBoard(move.getEndPosition()) && (positionIsEmpty(board, move.getEndPosition()) || positionIsCapturable(board, move.getStartPosition(), move.getEndPosition()))) {
+            validMoves.add(move);
+        }
+    }
 }
