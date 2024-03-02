@@ -1,4 +1,4 @@
-package dataAccess.MemoryDAO;
+package dataAccess.MemoryDataAccess;
 
 import dataAccess.UserDAO;
 import dataAccess.DataAccessException;
@@ -11,8 +11,8 @@ public class MemoryUserDAO implements UserDAO {
     private static Map<String, UserData> userData = new HashMap<>();
 
     @Override
-    public UserData createUser(String username, String password, String email) throws DataAccessException {
-        if (getUser(username) != null) {
+    public UserData create(String username, String password, String email) throws DataAccessException {
+        if (get(username) != null) {
             System.out.println("Current Users:" + userData.toString());
             throw new DataAccessException("Invalid username: " + username + " - Attempted to add a user that already exists.");
         }
@@ -22,20 +22,20 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUser(String username) {
+    public UserData get(String username) {
         return userData.get(username);
     }
 
     @Override
-    public void deleteUser(String username) throws DataAccessException {
-        if (getUser(username) == null) {
+    public void delete(String username) throws DataAccessException {
+        if (get(username) == null) {
             throw new DataAccessException("Invalid username: " + username + " - Attempted to delete a user that does not exist.");
         }
         userData.remove(username);
     }
 
     @Override
-    public void clearUsers() {
+    public void clear() {
         userData.clear();
     }
 }

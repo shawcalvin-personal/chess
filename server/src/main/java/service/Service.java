@@ -1,7 +1,7 @@
 package service;
 
 import dataAccess.*;
-import dataAccess.MemoryDAO.*;
+import dataAccess.MemoryDataAccess.*;
 import model.AuthData;
 import model.UserData;
 
@@ -25,12 +25,12 @@ public class Service {
     }
 
     public boolean isValidAuthToken(String authToken) {
-        AuthData auth = authDAO.getAuth(authToken);
+        AuthData auth = authDAO.get(authToken);
         return !(auth == null);
     }
 
     public boolean isValidUsernamePassword(String username, String password) {
-        UserData user = userDAO.getUser(username);
+        UserData user = userDAO.get(username);
         return user != null && password.equals(user.password());
     }
 

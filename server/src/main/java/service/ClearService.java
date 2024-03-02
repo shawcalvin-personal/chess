@@ -1,14 +1,12 @@
 package service;
 
-import dataAccess.*;
-import dataAccess.MemoryDAO.*;
 import server.responseModels.ClearApplicationResponse;
 
 public class ClearService extends Service {
     public ClearApplicationResponse clearDatabase() {
-        userDAO.clearUsers();
-        authDAO.clearAuth();
-        gameDAO.clearGames();
+        userDAO.clear();
+        authDAO.clear();
+        gameDAO.clear();
         return new ClearApplicationResponse();
     }
 }

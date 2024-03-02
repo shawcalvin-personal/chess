@@ -15,7 +15,7 @@ public class LoginService extends Service {
             return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
         }
         try {
-            AuthData auth = authDAO.createAuth(username, password);
+            AuthData auth = authDAO.create(username, password);
             return new LoginResponse(auth.username(), auth.authToken());
         } catch (Exception e){
             return new FailureResponse(FailureType.SERVER_ERROR, getServerErrorMessage(e));

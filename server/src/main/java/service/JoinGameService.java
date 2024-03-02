@@ -16,14 +16,14 @@ public class JoinGameService extends Service {
             return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
         }
         try {
-            GameData game = gameDAO.getGame(gameID);
+            GameData game = gameDAO.get(gameID);
             if (game == null) {
                 return new FailureResponse(FailureType.BAD_REQUEST, badRequestMessage);
             }
             String whiteUsername = game.whiteUsername();
             String blackUsername = game.blackUsername();
             Collection<String> observerUsernames = game.observerUsernames();
-            String playerUsername = authDAO.getAuth(authToken).username();
+            String playerUsername = authDAO.get(authToken).username();
             if (playerColor == null) {
                 observerUsernames.add(playerUsername);
             } else if (playerColor.equals(whiteColor) && whiteUsername == null) {
@@ -33,7 +33,7 @@ public class JoinGameService extends Service {
             } else {
                 return new FailureResponse(FailureType.FORBIDDEN_RESOURCE, forbiddenResourceMessage);
             }
-            gameDAO.updateGame(gameID, new GameData(gameID, whiteUsername, blackUsername, observerUsernames, game.gameName(), game.game()));
+            gameDAO.update(gameID, new GameData(gameID, whiteUsername, blackUsername, observerUsernames, game.gameName(), game.game()));
             return new JoinGameResponse();
         } catch (DataAccessException e) {
             System.out.println(e.getMessage());

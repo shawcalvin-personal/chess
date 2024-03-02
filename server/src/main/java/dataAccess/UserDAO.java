@@ -8,22 +8,22 @@ public interface UserDAO {
     If user already exists, throws DataAccessException
     Returns created user record
      */
-    UserData createUser(String username, String password, String email) throws DataAccessException;
+    UserData create(String username, String password, String email) throws DataAccessException;
 
     /*
     Retrieves a user from the user database by username
     Returns retrieved user record, or null if user does not exist
      */
-    UserData getUser(String username);
+    UserData get(String username);
 
     /*
     Deletes a user from the user database by username
     If user does not exist, throws DataAccessException
      */
-    void deleteUser(String username) throws DataAccessException;
+    void delete(String username) throws DataAccessException;
 
     /*
     Clears all user data from the user database
      */
-    void clearUsers();
+    void clear();
 }

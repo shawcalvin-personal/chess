@@ -10,8 +10,8 @@ public class RegisterService extends Service {
             return new FailureResponse(FailureType.BAD_REQUEST, badRequestMessage);
         }
         try {
-            UserData user = userDAO.createUser(username, password, email);
-            AuthData auth = authDAO.createAuth(user.username(), user.password());
+            UserData user = userDAO.create(username, password, email);
+            AuthData auth = authDAO.create(user.username(), user.password());
             return new RegisterResponse(auth.username(), auth.authToken());
         } catch (DataAccessException e) {
             System.out.println("DATA ACCESS: " + e.getMessage());

@@ -14,7 +14,7 @@ public class LogoutService extends Service {
             return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
         }
         try {
-            authDAO.deleteAuth(authToken);
+            authDAO.delete(authToken);
             return new LogoutResponse();
         } catch (Exception e) {
             System.out.println(e.getMessage());

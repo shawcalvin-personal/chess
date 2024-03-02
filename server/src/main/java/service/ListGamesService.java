@@ -11,7 +11,7 @@ public class ListGamesService extends Service {
             return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
         }
         Collection<GameInstance> listedGames = new ArrayList<>();
-        for (var game : gameDAO.listGames()) {
+        for (var game : gameDAO.list()) {
             listedGames.add(new GameInstance(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
         }
         return new ListGamesResponse(listedGames);

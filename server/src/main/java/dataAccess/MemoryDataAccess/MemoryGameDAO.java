@@ -1,4 +1,4 @@
-package dataAccess.MemoryDAO;
+package dataAccess.MemoryDataAccess;
 
 import chess.ChessGame;
 import dataAccess.DataAccessException;
@@ -13,7 +13,7 @@ public class MemoryGameDAO implements GameDAO {
     private static int lastGameID = 1;
 
     @Override
-    public GameData createGame(String gameName) {
+    public GameData create(String gameName) {
         int gameID = generateNewGameID();
         GameData game = new GameData(gameID, null, null, new ArrayList<>(), gameName, new ChessGame());
         gameData.put(gameID, game);
@@ -21,8 +21,8 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData createGame(GameData game) throws DataAccessException {
-        if (getGame(game.gameID()) != null) {
+    public GameData create(GameData game) throws DataAccessException {
+        if (get(game.gameID()) != null) {
             throw new DataAccessException("Invalid Game ID: " + game.gameID() + " - Attempted to create a game that already exists.");
         }
         gameData.put(game.gameID(), game);
@@ -30,34 +30,34 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData getGame(int gameID) {
+    public GameData get(int gameID) {
         return gameData.get(gameID);
     }
 
     @Override
-    public Collection<GameData> listGames() {
+    public Collection<GameData> list() {
         return gameData.values();
     }
 
     @Override
-    public void updateGame(int gameID, GameData game) throws DataAccessException {
-        if (getGame(gameID) == null) {
+    public void update(int gameID, GameData game) throws DataAccessException {
+        if (get(gameID) == null) {
             throw new DataAccessException("Invalid Game ID: " + gameID + " - Attempted to update a game that does not exist.");
         }
-        deleteGame(gameID);
+        delete(gameID);
         gameData.put(gameID, game);
     }
 
     @Override
-    public void deleteGame(int gameID) throws DataAccessException {
-        if (getGame(gameID) == null) {
+    public void delete(int gameID) throws DataAccessException {
+        if (get(gameID) == null) {
             throw new DataAccessException("Invalid Game ID: " + gameID + " - Attempted to delete a game that does not exist.");
         }
         gameData.remove(gameID);
     }
 
     @Override
-    public void clearGames() {
+    public void clear() {
         gameData.clear();
     }
 

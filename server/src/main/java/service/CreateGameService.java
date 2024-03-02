@@ -15,7 +15,7 @@ public class CreateGameService extends Service {
             return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
         }
         try {
-            GameData game = gameDAO.createGame(gameName);
+            GameData game = gameDAO.create(gameName);
             return new CreateGameResponse(game.gameID());
         } catch (Exception e) {
             System.out.println(e.getMessage());
