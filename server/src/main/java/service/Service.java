@@ -2,6 +2,7 @@ package service;
 
 import dataAccess.*;
 import dataAccess.MemoryDataAccess.*;
+import dataAccess.SQLDataAccess.SQLAuthDAO;
 import dataAccess.SQLDataAccess.SQLUserDAO;
 import model.AuthData;
 import model.UserData;
@@ -22,7 +23,7 @@ public class Service {
     public void init() {
         userDAO = new SQLUserDAO();
         gameDAO = new MemoryGameDAO();
-        authDAO = new MemoryAuthDAO();
+        authDAO = new SQLAuthDAO();
     }
 
     public boolean isValidAuthToken(String authToken) throws DataAccessException {

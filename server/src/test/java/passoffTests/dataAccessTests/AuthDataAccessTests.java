@@ -7,10 +7,7 @@ import dataAccess.SQLDataAccess.SQLUserDAO;
 import dataAccess.UserDAO;
 import model.AuthData;
 import model.UserData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 public class AuthDataAccessTests {
     static UserDAO userDAO;
@@ -24,12 +21,11 @@ public class AuthDataAccessTests {
         newUser = new UserData("new-username", "new-password", "new-email");
         existingUser = new UserData("existing-username", "existing-password", "existing-email");
     }
-
     @BeforeEach
     public void setup() {
         try {
-            userDAO.clear();
             authDAO.clear();
+            userDAO.clear();
             userDAO.create(existingUser.username(), existingUser.password(), existingUser.email());
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -82,7 +78,7 @@ public class AuthDataAccessTests {
 
             authDAO.delete(auth.authToken());
             AuthData deletedAuth = authDAO.get(auth.authToken());
-            Assertions.assertNotNull(deletedAuth);
+            Assertions.assertNull(deletedAuth);
         });
     }
     @Test

@@ -13,7 +13,7 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class DatabaseUtilities {
-    public static List<UserData> executeQuery(String statement, Object objectClass, Object... params) throws DataAccessException {
+    public static List<Object> executeQuery(String statement, Object objectClass, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
                 for (var i = 0; i < params.length; i++) {
@@ -69,8 +69,8 @@ public class DatabaseUtilities {
         }
     }
 
-    private static List<UserData> parseUserResultSet(ResultSet rs) throws Exception {
-        List<UserData> result = new ArrayList<>();
+    private static List<Object> parseUserResultSet(ResultSet rs) throws Exception {
+        List<Object> result = new ArrayList<>();
         while (rs.next()) {
             String username = rs.getString(1);
             String password = rs.getString(2);
@@ -80,46 +80,27 @@ public class DatabaseUtilities {
         return result;
     }
 
-    private static List<UserData> parseGameResultSet(ResultSet rs) throws Exception {
-        List<UserData> result = new ArrayList<>();
+    private static List<Object> parseGameResultSet(ResultSet rs) throws Exception {
+        List<Object> result = new ArrayList<>();
         while (rs.next()) {
-            String username = rs.getString(1);
-            String password = rs.getString(2);
-            String email = rs.getString(3);
-            result.add(new UserData(username, password, email));
+            Integer gameID = rs.getInt(1);
+            String whiteUsername = rs.getString(2);
+            String blackUsername = rs.getString(3);
+            String observerUsernames = rs.getString(4);
+            String gameName = rs.getString(5);
+            String game = rs.getString(6);
+//            result.add(new GameData(gameID, whiteUsername, blackUsername, observerUsernames, gameName, game));
         }
         return result;
     }
 
-    private static List<UserData> parseAuthResultSet(ResultSet rs) throws Exception {
-        List<UserData> result = new ArrayList<>();
+    private static List<Object> parseAuthResultSet(ResultSet rs) throws Exception {
+        List<Object> result = new ArrayList<>();
         while (rs.next()) {
             String username = rs.getString(1);
-            String password = rs.getString(2);
-            String email = rs.getString(3);
-            result.add(new UserData(username, password, email));
+            String authToken = rs.getString(2);
+            result.add(new AuthData(username, authToken));
         }
         return result;
     }
-
-//    public static List<UserData> queryUsers(String statement, Object... params) throws DataAccessException {
-//        List<UserData> users = new ArrayList<>();
-//        try(ResultSet rs = executeQuery(statement, params)) {
-//            while (rs.next()) {
-//                String username = rs.getString(1);
-//                String password = rs.getString(2);
-//                String email = rs.getString(3);
-//                users.add(new UserData(username, password, email));
-//            }
-//            return users;
-//        } catch (Exception e) {
-//            throw new DataAccessException(e.getMessage());
-//        }
-//    }
-
-//    public static GameData queryGames(String statement, Object... params) throws SQLException {
-//    }
-//
-//    public static AuthData queryAuth(String statement, Object... params) throws SQLException {
-//    }
 }

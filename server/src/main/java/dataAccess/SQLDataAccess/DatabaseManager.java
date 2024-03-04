@@ -69,4 +69,46 @@ public class DatabaseManager {
             throw new DataAccessException(e.getMessage());
         }
     }
+
+    private static void executeCreate(String[] statements) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            DatabaseManager.createDatabase();
+            for (var statement : statements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to configure database: %s", e.getMessage()));
+        }
+    }
+
+    static void configureDatabase() throws DataAccessException {
+        DatabaseManager.createDatabase();
+        final String[] userCreateStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  user (
+              `username` varchar(256) NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL,
+              PRIMARY KEY (`username`),
+              INDEX(email)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+        };
+        final String[] authCreateStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS  auth (
+              `username` varchar(256) NOT NULL,
+              `auth_token` varchar(256) NOT NULL,
+              PRIMARY KEY (`auth_token`),
+              FOREIGN KEY (`username`) REFERENCES `user` (`username`)
+              ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+        };
+
+        executeCreate(userCreateStatements);
+        executeCreate(authCreateStatements);
+    }
 }

@@ -4,10 +4,7 @@ import dataAccess.DataAccessException;
 import dataAccess.SQLDataAccess.SQLUserDAO;
 import dataAccess.UserDAO;
 import model.UserData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 public class UserDataAccessTests {
     static UserDAO userDAO;
@@ -19,7 +16,6 @@ public class UserDataAccessTests {
         newUser = new UserData("new-username", "new-password", "new-email");
         existingUser = new UserData("existing-username", "existing-password", "existing-email");
     }
-
     @BeforeEach
     public void setup() {
         try {
