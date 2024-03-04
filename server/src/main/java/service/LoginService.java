@@ -11,10 +11,10 @@ public class LoginService extends Service {
         if (username == null || password == null) {
             return new FailureResponse(FailureType.BAD_REQUEST, badRequestMessage);
         }
-        if (!isValidUsernamePassword(username, password)) {
-            return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
-        }
         try {
+            if (!isValidUsernamePassword(username, password)) {
+                return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
+            }
             AuthData auth = authDAO.create(username, password);
             return new LoginResponse(auth.username(), auth.authToken());
         } catch (Exception e){

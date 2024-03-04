@@ -10,7 +10,7 @@ public interface GameDAO {
     Generates a valid gameID and populates the rest with null values
     Returns the created game object
      */
-    GameData create(String gameName);
+    GameData create(String gameName) throws DataAccessException;
 
     /*
     Creates a new game using a passed game object
@@ -23,13 +23,13 @@ public interface GameDAO {
     Retrieves a game with a given gameID
     Returns null if no game exists with the given gameID
      */
-    GameData get(int gameID);
+    GameData get(int gameID) throws DataAccessException;
 
     /*
     Retrieves all games from the database
     Returns an empty list if the database is empty
      */
-    Collection<GameData> list();
+    Collection<GameData> list() throws DataAccessException;
 
     /*
     Updates a game using the values of a passed GameData object
@@ -46,5 +46,5 @@ public interface GameDAO {
     /*
     Clears all games from the database
      */
-    void clear();
+    void clear() throws DataAccessException;
 }

@@ -14,7 +14,7 @@ public interface UserDAO {
     Retrieves a user from the user database by username
     Returns retrieved user record, or null if user does not exist
      */
-    UserData get(String username);
+    UserData get(String username) throws DataAccessException;
 
     /*
     Deletes a user from the user database by username
@@ -25,5 +25,5 @@ public interface UserDAO {
     /*
     Clears all user data from the user database
      */
-    void clear();
+    void clear() throws DataAccessException;
 }

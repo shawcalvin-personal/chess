@@ -7,13 +7,17 @@ import java.util.Collection;
 
 public class ListGamesService extends Service {
     public ServiceResponse listGames(String authToken) {
-        if (!isValidAuthToken(authToken)) {
-            return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
+        try {
+            if (!isValidAuthToken(authToken)) {
+                return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
+            }
+            Collection<GameInstance> listedGames = new ArrayList<>();
+            for (var game : gameDAO.list()) {
+                listedGames.add(new GameInstance(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+            }
+            return new ListGamesResponse(listedGames);
+        } catch (Exception e) {
+            return new FailureResponse(FailureType.SERVER_ERROR, getServerErrorMessage(e));
         }
-        Collection<GameInstance> listedGames = new ArrayList<>();
-        for (var game : gameDAO.list()) {
-            listedGames.add(new GameInstance(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
-        }
-        return new ListGamesResponse(listedGames);
     }
 }

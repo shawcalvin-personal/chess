@@ -10,10 +10,10 @@ public class LogoutService extends Service {
         if (authToken == null) {
             return new FailureResponse(FailureType.BAD_REQUEST, badRequestMessage);
         }
-        if (!isValidAuthToken(authToken)) {
-            return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
-        }
         try {
+            if (!isValidAuthToken(authToken)) {
+                return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
+            }
             authDAO.delete(authToken);
             return new LogoutResponse();
         } catch (Exception e) {

@@ -1,6 +1,5 @@
 package passoffTests.serverTests;
 
-import chess.ChessGame;
 import org.junit.jupiter.api.*;
 import server.responseModels.*;
 import service.*;
@@ -68,7 +67,7 @@ class JoinGameServiceTests {
 
     @Test
     void joinGameBadAuth() {
-        RegisterResponse registerResponse = (RegisterResponse) registerService.register(newUsername, newPassword, newEmail);
+        registerService.register(newUsername, newPassword, newEmail);
 
         ServiceResponse response1 = joinGameService.joinGame("invalid-auth-token", whiteColor, existingGameID);
         Assertions.assertEquals(FailureResponse.class, response1.getClass());

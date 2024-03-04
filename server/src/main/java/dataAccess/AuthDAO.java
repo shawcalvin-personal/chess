@@ -8,13 +8,13 @@ public interface AuthDAO {
     Creates an auth token for a user given a username and password
     Returns the associated AuthData object
      */
-    AuthData create(String username, String password);
+    AuthData create(String username, String password) throws DataAccessException;
 
     /*
     Retrieves an AuthData object given an auth token
     Returns retrieved AuthData object, or null if it does not exist
      */
-    AuthData get(String authToken);
+    AuthData get(String authToken) throws DataAccessException;
 
     /*
     Deletes a given auth token
@@ -25,6 +25,6 @@ public interface AuthDAO {
     /*
     Clears all auth data from the database
      */
-    void clear();
+    void clear() throws DataAccessException;
 
 }

@@ -1,6 +1,5 @@
 package service;
 
-import chess.ChessGame;
 import dataAccess.DataAccessException;
 import model.GameData;
 import server.responseModels.*;
@@ -12,10 +11,10 @@ public class JoinGameService extends Service {
         if (authToken == null || gameID == null) {
             return new FailureResponse(FailureType.BAD_REQUEST, badRequestMessage);
         }
-        if (!isValidAuthToken(authToken)) {
-            return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
-        }
         try {
+            if (!isValidAuthToken(authToken)) {
+                return new FailureResponse(FailureType.UNAUTHORIZED_ACCESS, unauthorizedAccessMessage);
+            }
             GameData game = gameDAO.get(gameID);
             if (game == null) {
                 return new FailureResponse(FailureType.BAD_REQUEST, badRequestMessage);

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO {
-    private static Map<String, AuthData> authData = new HashMap<>();;
+    private static Map<String, AuthData> authData = new HashMap<>();
 
     @Override
     public AuthData create(String username, String password) {
