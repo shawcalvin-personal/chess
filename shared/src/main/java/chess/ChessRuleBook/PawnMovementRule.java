@@ -7,6 +7,9 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class PawnMovementRule extends MovementRule {
+    public PawnMovementRule() {
+        this.pieceType = ChessPiece.PieceType.PAWN;
+    }
     public Collection<ChessMove> getValidMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> validMoves = new HashSet<>();
         int travelDirection = board.getPiece(position).getTeamColor().equals(ChessGame.TeamColor.WHITE) ? 1 : -1;

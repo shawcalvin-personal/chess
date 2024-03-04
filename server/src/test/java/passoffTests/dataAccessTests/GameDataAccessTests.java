@@ -1,6 +1,8 @@
 package passoffTests.dataAccessTests;
 
 import chess.ChessGame;
+import com.google.gson.*;
+import dataAccess.ChessGameSerializer;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.SQLDataAccess.SQLGameDAO;
@@ -12,6 +14,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static passoffTests.TestFactory.getNewGame;
+import static passoffTests.TestFactory.loadBoard;
 
 public class GameDataAccessTests {
     static UserDAO userDAO;
@@ -130,6 +135,26 @@ public class GameDataAccessTests {
             Assertions.assertNull(gameDAO.get(createdGame.gameID()));
             Assertions.assertNull(gameDAO.get(existingGame.gameID()));
         });
+    }
+    @Test
+    void storeGame() {
+        ChessGame game = new ChessGame();
+        game.setBoard(loadBoard("""
+                | | | | | | | | |
+                | | | | | | | |q|
+                | | |n| | | |p| |
+                | | | | | | | | |
+                | | | | | | | | |
+                | | | | | | | | |
+                | | |B| | | | | |
+                | |K| | | | | |R|
+                """));
+        game.setTeamTurn(ChessGame.TeamColor.WHITE);
+
+        Gson builder = ChessGameSerializer.createSerializer();
+        String serializedGame = builder.toJson(game);
+        ChessGame deserializedGame = builder.fromJson(serializedGame, ChessGame.class);
+        Assertions.assertEquals(game, deserializedGame);
     }
 }
 

@@ -3,6 +3,7 @@ package chess.ChessRuleBook;
 import chess.*;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 
 public class ChessRuleBook {
     MovementRule kingMovementRule;
@@ -92,5 +93,30 @@ public class ChessRuleBook {
             }
         }
         return validMoves.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        return "ChessRuleBook{" +
+                "kingMovementRule=" + kingMovementRule +
+                ", queenMovementRule=" + queenMovementRule +
+                ", rookMovementRule=" + rookMovementRule +
+                ", bishopMovementRule=" + bishopMovementRule +
+                ", knightMovementRule=" + knightMovementRule +
+                ", pawnMovementRule=" + pawnMovementRule +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessRuleBook that = (ChessRuleBook) o;
+        return Objects.equals(kingMovementRule, that.kingMovementRule) && Objects.equals(queenMovementRule, that.queenMovementRule) && Objects.equals(rookMovementRule, that.rookMovementRule) && Objects.equals(bishopMovementRule, that.bishopMovementRule) && Objects.equals(knightMovementRule, that.knightMovementRule) && Objects.equals(pawnMovementRule, that.pawnMovementRule);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(kingMovementRule, queenMovementRule, rookMovementRule, bishopMovementRule, knightMovementRule, pawnMovementRule);
     }
 }

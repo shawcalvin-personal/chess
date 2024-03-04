@@ -7,6 +7,9 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class RookMovementRule extends MovementRule {
+    public RookMovementRule() {
+        this.pieceType = ChessPiece.PieceType.ROOK;
+    }
     public Collection<ChessMove> getValidMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> validMoves = new HashSet<>();
         int[][] moveDirections = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};

@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class KingMovementRule extends MovementRule {
+    public KingMovementRule() {
+        this.pieceType = ChessPiece.PieceType.KING;
+    }
     public Collection<ChessMove> getValidMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> validMoves = new HashSet<>();
         int[][] validMoveSet = {{1, 1}, {1, 0}, {1, -1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, 1}, {0, -1}};

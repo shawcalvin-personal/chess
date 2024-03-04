@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
+
 import chess.ChessRuleBook.ChessRuleBook;
 
 /**
@@ -122,5 +124,27 @@ public class ChessGame {
 
     private void updateTeamColor() {
         this.setTeamTurn(this.teamTurn == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "board=" + board +
+                ", teamTurn=" + teamTurn +
+                ", ruleBook=" + ruleBook +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessGame chessGame = (ChessGame) o;
+        return Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn && Objects.equals(ruleBook, chessGame.ruleBook);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, teamTurn, ruleBook);
     }
 }

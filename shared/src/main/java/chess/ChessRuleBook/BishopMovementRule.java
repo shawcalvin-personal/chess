@@ -7,6 +7,10 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class BishopMovementRule extends MovementRule {
+
+    public BishopMovementRule() {
+        this.pieceType = ChessPiece.PieceType.BISHOP;
+    }
     public Collection<ChessMove> getValidMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> validMoves = new HashSet<>();
         int[][] moveDirections = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};

@@ -7,6 +7,9 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class KnightMovementRule extends MovementRule {
+    public KnightMovementRule() {
+        this.pieceType = ChessPiece.PieceType.KNIGHT;
+    }
     public Collection<ChessMove> getValidMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> validMoves = new HashSet<>();
         int[][] validMoveSet = {{2, 1}, {1, 2}, {2, -1}, {1, -2}, {-2, 1}, {-1, 2}, {-2, -1}, {-1, -2}};

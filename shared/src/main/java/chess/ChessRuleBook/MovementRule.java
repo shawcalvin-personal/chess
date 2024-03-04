@@ -1,9 +1,13 @@
 package chess.ChessRuleBook;
 
 import java.util.Collection;
+import java.util.Objects;
+
 import chess.*;
 
 public abstract class MovementRule {
+    protected ChessPiece.PieceType pieceType;
+
     abstract Collection<ChessMove> getValidMoves(ChessBoard board, ChessPosition position);
 
     public boolean positionIsOnBoard(ChessPosition position) {
@@ -22,5 +26,23 @@ public abstract class MovementRule {
         if (positionIsOnBoard(move.getEndPosition()) && (positionIsEmpty(board, move.getEndPosition()) || positionIsCapturable(board, move.getStartPosition(), move.getEndPosition()))) {
             validMoves.add(move);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "MovementRule{" +
+                "pieceType=" + pieceType +
+                '}';
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MovementRule that = (MovementRule) o;
+        return pieceType == that.pieceType;
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceType);
     }
 }
