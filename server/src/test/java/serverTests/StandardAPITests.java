@@ -1,4 +1,4 @@
-package serviceTests;
+package java.serverTests;
 
 import chess.ChessGame;
 import org.junit.jupiter.api.*;
