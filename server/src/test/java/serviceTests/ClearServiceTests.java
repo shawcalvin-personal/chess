@@ -1,10 +1,13 @@
-package passoffTests.serverTests;
+package serviceTests;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import server.responseModels.*;
 import service.*;
 
-class ListGamesServiceTests {
+public class ClearServiceTests {
     private static String newUsername;
     private static String newPassword;
     private static String newEmail;
@@ -13,13 +16,13 @@ class ListGamesServiceTests {
     private static String existingEmail;
     private static String existingAuthToken;
     private static RegisterService registerService;
+    private static LoginService loginService;
     private static CreateGameService createGameService;
     private static JoinGameService joinGameService;
     private static ListGamesService listGamesService;
     private static ClearService clearService;
     private static String existingGameName;
     private static int existingGameID;
-
     private static String whiteColor;
     private  static String blackColor;
 
@@ -39,6 +42,7 @@ class ListGamesServiceTests {
         blackColor = "BLACK";
 
         registerService = new RegisterService();
+        loginService = new LoginService();
         createGameService = new CreateGameService();
         joinGameService = new JoinGameService();
         listGamesService = new ListGamesService();
@@ -56,35 +60,7 @@ class ListGamesServiceTests {
     }
 
     @Test
-    void listGamesValidUser() {
-        RegisterResponse registerResponse = (RegisterResponse) registerService.register(newUsername, newPassword, newEmail);
-        String newAuthToken = registerResponse.authToken();
-
-        joinGameService.joinGame(existingAuthToken, whiteColor, existingGameID);
-        joinGameService.joinGame(newAuthToken, blackColor, existingGameID);
-
-        ServiceResponse response = listGamesService.listGames(existingAuthToken);
-        Assertions.assertEquals(ListGamesResponse.class, response.getClass());
-        ListGamesResponse listGamesResponse = (ListGamesResponse) response;
-        Assertions.assertFalse(listGamesResponse.games().isEmpty());
-    }
-
-    @Test
-    void listGamesBadAuth() {
-        RegisterResponse registerResponse = (RegisterResponse) registerService.register(newUsername, newPassword, newEmail);
-        String newAuthToken = registerResponse.authToken();
-
-        joinGameService.joinGame(existingAuthToken, whiteColor, existingGameID);
-        joinGameService.joinGame(newAuthToken, blackColor, existingGameID);
-
-        ServiceResponse response = listGamesService.listGames("invalid-auth-token");
-        Assertions.assertEquals(FailureResponse.class, response.getClass());
-        FailureResponse failureResponse = (FailureResponse) response;
-        Assertions.assertEquals(FailureType.UNAUTHORIZED_ACCESS, failureResponse.failureType());
-    }
-
-    @Test
-    void listManyGames() {
+    void clear() {
         RegisterResponse registerResponse = (RegisterResponse) registerService.register(newUsername, newPassword, newEmail);
         String newAuthToken = registerResponse.authToken();
 
@@ -113,5 +89,20 @@ class ListGamesServiceTests {
         Assertions.assertEquals(ListGamesResponse.class, response.getClass());
         ListGamesResponse listGamesResponse = (ListGamesResponse) response;
         Assertions.assertEquals(4, listGamesResponse.games().size());
+
+        clearService.clearDatabase();
+        RegisterResponse registerResponse2 = (RegisterResponse) registerService.register(newUsername, newPassword, newEmail);
+        String newAuthToken2 = registerResponse2.authToken();
+
+        ServiceResponse response2 = listGamesService.listGames(newAuthToken2);
+        Assertions.assertEquals(ListGamesResponse.class, response2.getClass());
+        ListGamesResponse listGamesResponse2 = (ListGamesResponse) response2;
+        Assertions.assertEquals(0, listGamesResponse2.games().size());
+
+        ServiceResponse testLoginResponse = loginService.login(existingUsername, existingPassword);
+        Assertions.assertEquals(FailureResponse.class, testLoginResponse.getClass());
+        FailureResponse testFailureResponse = (FailureResponse) testLoginResponse;
+        Assertions.assertEquals(FailureType.UNAUTHORIZED_ACCESS, testFailureResponse.failureType());
     }
+
 }

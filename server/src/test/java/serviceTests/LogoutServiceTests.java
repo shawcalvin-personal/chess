@@ -1,32 +1,30 @@
-package passoffTests.serverTests;
+package serviceTests;
 
 import org.junit.jupiter.api.*;
 import server.responseModels.*;
 import service.ClearService;
 import service.LoginService;
+import service.LogoutService;
 import service.RegisterService;
 
-class LoginServiceTests {
-    private static String newUsername;
-    private static String newPassword;
+class LogoutServiceTests {
     private static String existingUsername;
     private static String existingPassword;
     private static String existingEmail;
     private static RegisterService registerService;
     private static LoginService loginService;
+    private static LogoutService logoutService;
     private static ClearService clearService;
 
     @BeforeAll
     public static void init() {
-        newUsername = "new-username";
-        newPassword = "new-password";
-
         existingUsername = "existing-username";
         existingPassword = "existing-password";
         existingEmail = "existing-email";
 
         registerService = new RegisterService();
         loginService = new LoginService();
+        logoutService = new LogoutService();
         clearService = new ClearService();
     }
 
@@ -38,17 +36,21 @@ class LoginServiceTests {
     }
 
     @Test
-    void loginValidUser() {
+    void logoutValidUser() {
         ServiceResponse response = loginService.login(existingUsername, existingPassword);
         Assertions.assertEquals(LoginResponse.class, response.getClass());
 
         LoginResponse loginResponse = (LoginResponse) response;
         Assertions.assertEquals(existingUsername, loginResponse.username());
+
+        String authToken = loginResponse.authToken();
+        ServiceResponse logoutResponse = logoutService.logout(authToken);
+        Assertions.assertEquals(LogoutResponse.class, logoutResponse.getClass());
     }
 
     @Test
-    void loginInvalidUser() {
-        ServiceResponse response = loginService.login(newUsername, newPassword);
+    void logoutBadAuth() {
+        ServiceResponse response = logoutService.logout("invalid-auth-token");
         Assertions.assertEquals(FailureResponse.class, response.getClass());
 
         FailureResponse failureResponse = (FailureResponse) response;
