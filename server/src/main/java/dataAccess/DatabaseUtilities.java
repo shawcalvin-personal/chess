@@ -1,9 +1,7 @@
-package dataAccess.SQLDataAccess;
+package dataAccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import dataAccess.ChessSerializer;
-import dataAccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;

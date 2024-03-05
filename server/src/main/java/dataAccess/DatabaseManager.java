@@ -1,6 +1,4 @@
-package dataAccess.SQLDataAccess;
-
-import dataAccess.DataAccessException;
+package dataAccess;
 
 import java.sql.*;
 import java.util.Properties;
@@ -83,7 +81,7 @@ public class DatabaseManager {
         }
     }
 
-    static void configureDatabase() throws DataAccessException {
+    public static void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         final String[] userCreateStatements = {
             """

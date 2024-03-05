@@ -92,7 +92,7 @@ public class PersistenceTests {
     private int getDatabaseRows() {
         int rows = 0;
         try {
-            Class<?> clazz = Class.forName("dataAccess.SQLDataAccess.DatabaseManager");
+            Class<?> clazz = Class.forName("dataAccess.DatabaseManager");
             Method getConnectionMethod = clazz.getDeclaredMethod("getConnection");
             getConnectionMethod.setAccessible(true);
 
@@ -111,7 +111,7 @@ public class PersistenceTests {
 
             }
         } catch (Exception ex) {
-            Assertions.fail("Unable to load database in order to verify persistence. Are you using dataAccess.SQLDataAccess.DatabaseManager to set your credentials?");
+            Assertions.fail("Unable to load database in order to verify persistence. Are you using dataAccess.DatabaseManager to set your credentials?");
         }
 
         return rows;

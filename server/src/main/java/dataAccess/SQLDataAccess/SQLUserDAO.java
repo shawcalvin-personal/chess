@@ -1,9 +1,9 @@
 package dataAccess.SQLDataAccess;
 
 import dataAccess.DataAccessException;
+import dataAccess.DatabaseManager;
+import dataAccess.DatabaseUtilities;
 import dataAccess.UserDAO;
-import model.AuthData;
-import model.GameData;
 import model.UserData;
 import java.util.List;
 

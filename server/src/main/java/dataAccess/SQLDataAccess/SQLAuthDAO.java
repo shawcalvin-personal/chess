@@ -2,6 +2,8 @@ package dataAccess.SQLDataAccess;
 
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
+import dataAccess.DatabaseManager;
+import dataAccess.DatabaseUtilities;
 import model.AuthData;
 
 import java.util.List;
