@@ -1,8 +1,6 @@
 package passoffTests.dataAccessTests;
 
 import chess.ChessGame;
-import com.google.gson.*;
-import dataAccess.ChessGameSerializer;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.SQLDataAccess.SQLGameDAO;
@@ -15,7 +13,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static passoffTests.TestFactory.getNewGame;
+import java.util.Collection;
+
 import static passoffTests.TestFactory.loadBoard;
 
 public class GameDataAccessTests {
@@ -45,14 +44,15 @@ public class GameDataAccessTests {
             gameDAO.clear();
             userDAO.create(existingWhiteUser.username(), existingWhiteUser.password(), existingWhiteUser.email());
             userDAO.create(existingBlackUser.username(), existingBlackUser.password(), existingBlackUser.email());
-            existingGame = gameDAO.create("existing-game-name");
-            gameDAO.update(existingGame.gameID(), new GameData(existingGame.gameID(), existingWhiteUser.username(), existingBlackUser.username(), existingGame.observerUsernames(), existingGame.gameName(), existingGame.game()));
+            GameData createdGame = gameDAO.create("existing-game-name");
+            gameDAO.update(createdGame.gameID(), new GameData(createdGame.gameID(), existingWhiteUser.username(), existingBlackUser.username(), createdGame.observerUsernames(), createdGame.gameName(), createdGame.game()));
+            existingGame = gameDAO.get( createdGame.gameID());
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
     @Test
-    void createGameByNameValid() {
+    void createGameValid() {
         Assertions.assertDoesNotThrow(() -> {
             GameData createdGame = gameDAO.create(newGame.gameName());
             Assertions.assertNotNull(createdGame);
@@ -62,9 +62,9 @@ public class GameDataAccessTests {
         });
     }
     @Test
-    void createGameAlreadyExists() {
+    void createGameNullName() {
         Assertions.assertThrows(DataAccessException.class, () -> {
-            GameData createdGame = gameDAO.create(existingGame);
+            GameData createdGame = gameDAO.create(null);
             Assertions.assertNull(createdGame);
         });
     }
@@ -100,12 +100,24 @@ public class GameDataAccessTests {
     @Test
     void updateGameValid() {
         Assertions.assertDoesNotThrow(() -> {
+            existingGame.game().setBoard(loadBoard("""
+                | | | | | | | | |
+                | | | | | | | |q|
+                | | |n| | | |p| |
+                | | | | | | | | |
+                | | | | | | | | |
+                | | | | | | | | |
+                | | |B| | | | | |
+                | |K| | | | | |R|
+                """));
+            existingGame.game().setTeamTurn(ChessGame.TeamColor.WHITE);
             gameDAO.update(existingGame.gameID(), new GameData(existingGame.gameID(), existingWhiteUser.username(), existingBlackUser.username(), existingGame.observerUsernames(), existingGame.gameName(), existingGame.game()));
             GameData retrievedGame = gameDAO.get(existingGame.gameID());
             Assertions.assertNotNull(retrievedGame);
             Assertions.assertEquals(existingWhiteUser.username(), retrievedGame.whiteUsername());
             Assertions.assertEquals(existingBlackUser.username(), retrievedGame.blackUsername());
             Assertions.assertEquals(ChessGame.class, retrievedGame.game().getClass());
+            Assertions.assertEquals(existingGame.game(), retrievedGame.game());
         });
     }
     @Test
@@ -137,24 +149,25 @@ public class GameDataAccessTests {
         });
     }
     @Test
-    void storeGame() {
-        ChessGame game = new ChessGame();
-        game.setBoard(loadBoard("""
-                | | | | | | | | |
-                | | | | | | | |q|
-                | | |n| | | |p| |
-                | | | | | | | | |
-                | | | | | | | | |
-                | | | | | | | | |
-                | | |B| | | | | |
-                | |K| | | | | |R|
-                """));
-        game.setTeamTurn(ChessGame.TeamColor.WHITE);
-
-        Gson builder = ChessGameSerializer.createSerializer();
-        String serializedGame = builder.toJson(game);
-        ChessGame deserializedGame = builder.fromJson(serializedGame, ChessGame.class);
-        Assertions.assertEquals(game, deserializedGame);
+    void listGamesValid() {
+        Assertions.assertDoesNotThrow(() -> {
+            GameData createdGame = gameDAO.create(newGame.gameName());
+            Collection<GameData> listedGames = gameDAO.list();
+            Assertions.assertNotNull(listedGames);
+            Assertions.assertEquals(2, listedGames.size());
+            for (var game : listedGames) {
+                Assertions.assertEquals(GameData.class, game.getClass());
+            }
+        });
+    }
+    @Test
+    void listGamesNoGamesInDatabase() {
+        Assertions.assertDoesNotThrow(() -> {
+            gameDAO.clear();
+            Collection<GameData> listedGames = gameDAO.list();
+            Assertions.assertNotNull(listedGames);
+            Assertions.assertTrue(listedGames.isEmpty());
+        });
     }
 }
 

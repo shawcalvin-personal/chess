@@ -87,7 +87,7 @@ public class DatabaseManager {
         DatabaseManager.createDatabase();
         final String[] userCreateStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  user (
+            CREATE TABLE IF NOT EXISTS user (
               `username` varchar(256) NOT NULL,
               `password` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
@@ -97,8 +97,8 @@ public class DatabaseManager {
             """
         };
         final String[] authCreateStatements = {
-                """
-            CREATE TABLE IF NOT EXISTS  auth (
+            """
+            CREATE TABLE IF NOT EXISTS auth (
               `username` varchar(256) NOT NULL,
               `auth_token` varchar(256) NOT NULL,
               PRIMARY KEY (`auth_token`),
@@ -107,8 +107,24 @@ public class DatabaseManager {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
         };
-
+        final String[] gameCreateStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS game (
+              `game_id` int NOT NULL AUTO_INCREMENT,
+              `white_username` varchar(256) DEFAULT NULL,
+              `black_username` varchar(256) DEFAULT NULL,
+              `observer_usernames` varchar(256) DEFAULT NULL,
+              `game_name` varchar(256) NOT NULL,
+              `game` TEXT NOT NULL,
+              PRIMARY KEY (`game_id`),
+              FOREIGN KEY (`white_username`) REFERENCES `user` (`username`) ON DELETE CASCADE,
+              FOREIGN KEY (`black_username`) REFERENCES `user` (`username`) ON DELETE CASCADE,
+              INDEX(game_name)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+        };
         executeCreate(userCreateStatements);
         executeCreate(authCreateStatements);
+        executeCreate(gameCreateStatements);
     }
 }

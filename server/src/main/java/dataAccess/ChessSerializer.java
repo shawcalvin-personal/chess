@@ -4,13 +4,15 @@ import chess.*;
 import chess.ChessRuleBook.*;
 import com.google.gson.*;
 
-public class ChessGameSerializer {
+import java.util.ArrayList;
+import java.util.Collection;
+
+public class ChessSerializer {
     public static Gson createSerializer() {
         GsonBuilder gsonBuilder = new GsonBuilder();
 
         gsonBuilder.registerTypeAdapter(MovementRule.class,
                 (JsonDeserializer<MovementRule>) (el, type, ctx) -> {
-                    System.out.println("ELEMENT: " + type);
                     MovementRule movementRule = null;
                     if (el.isJsonObject()) {
                         String pieceType = el.getAsJsonObject().get("pieceType").getAsString();
@@ -27,5 +29,21 @@ public class ChessGameSerializer {
                 });
 
         return gsonBuilder.create();
+    }
+
+    public static String serializeChessGame(ChessGame game) {
+        return ChessSerializer.createSerializer().toJson(game);
+    }
+
+    public static ChessGame deserializeChessGame(String serializedGame) {
+        return ChessSerializer.createSerializer().fromJson(serializedGame, ChessGame.class);
+    }
+
+    public static Collection<String> deserializeObserverUsernames(String serializedObserverUsernames) {
+        return new Gson().fromJson(serializedObserverUsernames, ArrayList.class);
+    }
+
+    public static String serializeObserverUsernames(Collection<String> observerUsernames) {
+        return new Gson().toJson(observerUsernames);
     }
 }

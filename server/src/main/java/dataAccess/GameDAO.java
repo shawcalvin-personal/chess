@@ -13,13 +13,6 @@ public interface GameDAO {
     GameData create(String gameName) throws DataAccessException;
 
     /*
-    Creates a new game using a passed game object
-    Throws a DataAccessException if the game already exists
-    Returns the created game object
-     */
-    GameData create(GameData game) throws DataAccessException;
-
-    /*
     Retrieves a game with a given gameID
     Returns null if no game exists with the given gameID
      */

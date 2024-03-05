@@ -1,5 +1,8 @@
 package dataAccess.SQLDataAccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
+import dataAccess.ChessSerializer;
 import dataAccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
@@ -50,6 +53,7 @@ public class DatabaseUtilities {
                     switch (param) {
                         case String p -> ps.setString(i + 1, p);
                         case Integer p -> ps.setInt(i + 1, p);
+                        case ChessGame p -> ps.setString(i + 1, ChessSerializer.serializeChessGame(p));
                         case null -> ps.setNull(i + 1, NULL);
                         default -> {
                         }
@@ -86,10 +90,10 @@ public class DatabaseUtilities {
             Integer gameID = rs.getInt(1);
             String whiteUsername = rs.getString(2);
             String blackUsername = rs.getString(3);
-            String observerUsernames = rs.getString(4);
+            ArrayList<String> observerUsernames = new Gson().fromJson(rs.getString(4), ArrayList.class);
             String gameName = rs.getString(5);
-            String game = rs.getString(6);
-//            result.add(new GameData(gameID, whiteUsername, blackUsername, observerUsernames, gameName, game));
+            ChessGame game = ChessSerializer.deserializeChessGame(rs.getString(6));
+            result.add(new GameData(gameID, whiteUsername, blackUsername, observerUsernames, gameName, game));
         }
         return result;
     }

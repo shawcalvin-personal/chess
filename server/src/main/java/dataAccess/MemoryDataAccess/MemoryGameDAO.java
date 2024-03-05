@@ -19,16 +19,6 @@ public class MemoryGameDAO implements GameDAO {
         gameData.put(gameID, game);
         return game;
     }
-
-    @Override
-    public GameData create(GameData game) throws DataAccessException {
-        if (get(game.gameID()) != null) {
-            throw new DataAccessException("Invalid Game ID: " + game.gameID() + " - Attempted to create a game that already exists.");
-        }
-        gameData.put(game.gameID(), game);
-        return game;
-    }
-
     @Override
     public GameData get(int gameID) {
         return gameData.get(gameID);
