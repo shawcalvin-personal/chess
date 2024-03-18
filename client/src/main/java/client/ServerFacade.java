@@ -4,13 +4,8 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.net.*;
 
-import model.chessModels.AuthData;
-import model.chessModels.GameData;
-import model.chessModels.UserData;
-import model.requestModels.CreateGameRequest;
-import model.requestModels.JoinGameRequest;
-import model.requestModels.LoginRequest;
-import model.requestModels.RegisterRequest;
+import model.requestModels.*;
+import model.responseModels.*;
 
 public class ServerFacade {
     private final String serverUrl;
@@ -19,36 +14,34 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
     }
 
-    public AuthData login(LoginRequest req) throws ResponseException {
+    public LoginResponse login(LoginRequest req) throws ResponseException {
         String path = "/session";
-        return this.makeRequest("POST", path, req, null, AuthData.class);
+        return this.makeRequest("POST", path, req, null, LoginResponse.class);
     }
 
-    public AuthData register(RegisterRequest req) throws ResponseException {
+    public RegisterResponse register(RegisterRequest req) throws ResponseException {
         String path = "/user";
-        return this.makeRequest("POST", path, req, null, AuthData.class);
+        return this.makeRequest("POST", path, req, null, RegisterResponse.class);
     }
 
-    public void logout(AuthData auth) throws ResponseException {
+    public void logout(RequestHeader header) throws ResponseException {
         String path = "/session";
-        this.makeRequest("DELETE", path, null, auth, null);
+        this.makeRequest("DELETE", path, null, header, LogoutResponse.class);
     }
 
-    public GameData createGame(CreateGameRequest req, AuthData auth) throws ResponseException {
+    public CreateGameResponse createGame(CreateGameRequest req, RequestHeader header) throws ResponseException {
         String path = "/game";
-        return this.makeRequest("POST", path, req, auth, GameData.class);
+        return this.makeRequest("POST", path, req, header, CreateGameResponse.class);
     }
 
-    public void listGames(AuthData auth) throws ResponseException {
+    public ListGamesResponse listGames(RequestHeader header) throws ResponseException {
         String path = "/game";
+        return this.makeRequest("GET", path, null, header, ListGamesResponse.class);
     }
 
-    public void joinGame(JoinGameRequest req, AuthData auth) throws ResponseException {
+    public void joinGame(JoinGameRequest req, RequestHeader header) throws ResponseException {
         String path = "/game";
-    }
-
-    public void joinObserver(JoinGameRequest req, AuthData auth) throws ResponseException {
-        String path = "/game";
+        this.makeRequest("PUT", path, req, header, JoinGameResponse.class);
     }
 
     public void clearApplication() throws ResponseException {
@@ -56,7 +49,7 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object requestBody, AuthData requestHeader, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object requestBody, RequestHeader requestHeader, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();

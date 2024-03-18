@@ -1,6 +1,8 @@
 package server;
 
-import server.responseModels.*;
+import model.responseModels.ServiceResponse;
+import model.responseModels.StatusCodeResponse;
+import model.responseModels.FailureResponse;
 import service.*;
 import spark.*;
 

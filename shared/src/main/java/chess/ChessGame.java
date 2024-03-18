@@ -22,6 +22,12 @@ public class ChessGame {
         this.ruleBook = new ChessRuleBook();
     }
 
+    public void init() {
+        this.board = new ChessBoard();
+        this.board.resetBoard();
+        this.teamTurn = TeamColor.WHITE;
+    }
+
     /**
      * @return Which team's turn it is
      */

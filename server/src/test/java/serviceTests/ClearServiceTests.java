@@ -1,10 +1,12 @@
 package serviceTests;
 
+import model.responseModels.FailureType;
+import model.responseModels.ServiceResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.responseModels.*;
+import model.responseModels.*;
 import service.*;
 
 public class ClearServiceTests {

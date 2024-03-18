@@ -1,6 +1,10 @@
 package service;
 
-import server.responseModels.*;
+import model.responseModels.GameInstance;
+import model.responseModels.ListGamesResponse;
+import model.responseModels.FailureResponse;
+import model.responseModels.FailureType;
+import model.responseModels.ServiceResponse;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,7 +1,10 @@
 package service;
 
 import model.chessModels.GameData;
-import server.responseModels.*;
+import model.responseModels.CreateGameResponse;
+import model.responseModels.FailureResponse;
+import model.responseModels.FailureType;
+import model.responseModels.ServiceResponse;
 
 public class CreateGameService extends Service {
     public ServiceResponse createGame(String authToken, String gameName) {

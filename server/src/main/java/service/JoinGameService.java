@@ -2,7 +2,10 @@ package service;
 
 import dataAccess.DataAccessException;
 import model.chessModels.GameData;
-import server.responseModels.*;
+import model.responseModels.JoinGameResponse;
+import model.responseModels.FailureResponse;
+import model.responseModels.FailureType;
+import model.responseModels.ServiceResponse;
 
 import java.util.Collection;
 

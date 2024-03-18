@@ -1,9 +1,9 @@
 package service;
 
-import server.responseModels.FailureResponse;
-import server.responseModels.FailureType;
-import server.responseModels.LogoutResponse;
-import server.responseModels.ServiceResponse;
+import model.responseModels.LogoutResponse;
+import model.responseModels.FailureResponse;
+import model.responseModels.FailureType;
+import model.responseModels.ServiceResponse;
 
 public class LogoutService extends Service {
     public ServiceResponse logout(String authToken) {

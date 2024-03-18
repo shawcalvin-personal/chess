@@ -1,9 +1,9 @@
 package service;
 
-import server.responseModels.ClearApplicationResponse;
-import server.responseModels.FailureResponse;
-import server.responseModels.FailureType;
-import server.responseModels.ServiceResponse;
+import model.responseModels.ClearApplicationResponse;
+import model.responseModels.FailureResponse;
+import model.responseModels.FailureType;
+import model.responseModels.ServiceResponse;
 
 public class ClearService extends Service {
     public ServiceResponse clearDatabase() {

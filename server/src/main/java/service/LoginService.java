@@ -1,10 +1,10 @@
 package service;
 
 import model.chessModels.AuthData;
-import server.responseModels.FailureResponse;
-import server.responseModels.FailureType;
-import server.responseModels.LoginResponse;
-import server.responseModels.ServiceResponse;
+import model.responseModels.LoginResponse;
+import model.responseModels.FailureResponse;
+import model.responseModels.FailureType;
+import model.responseModels.ServiceResponse;
 
 public class LoginService extends Service {
     public ServiceResponse login(String username, String password) {

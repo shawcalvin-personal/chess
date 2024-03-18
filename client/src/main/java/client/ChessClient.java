@@ -1,18 +1,31 @@
 package client;
 
-import model.chessModels.*;
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
 import model.requestModels.*;
+import model.responseModels.*;
+import model.requestModels.LoginRequest;
+import model.requestModels.RegisterRequest;
+import model.requestModels.RequestHeader;
+import ui.ChessGamePrinter;
+
 
 import java.util.Arrays;
+
+import static java.lang.Integer.parseInt;
 
 public class ChessClient {
 
     private final ServerFacade server;
     private State userState = State.SIGNEDOUT;
-    private AuthData auth;
+    private RequestHeader auth;
+    private ChessGame game;
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
+        game = new ChessGame();
+        game.init();
     }
 
     public String eval(String input) {
@@ -29,6 +42,8 @@ public class ChessClient {
                 case "listgames" -> listGames();
                 case "joingame" -> joinGame(params);
                 case "joinobserver" -> joinObserver(params);
+                case "clear" -> clear();
+                case "print" -> print();
                 case "quit" -> quit();
                 default -> "Unrecognized command. Type 'help' for a list of available commands.";
             };
@@ -57,41 +72,64 @@ public class ChessClient {
     }
 
     public String login(String... params) throws ResponseException {
-        if (params.length >= 2) {
+        if (params.length == 2) {
+            LoginResponse res = server.login(new LoginRequest(params[0], params[1]));
             userState = State.SIGNEDIN;
-            auth = server.login(new LoginRequest(params[0], params[1]));
-            return String.format("You are signed in as %s.", auth.username());
+            auth = new RequestHeader(res.authToken());
+            return String.format("You are signed in as %s.", res.username());
         }
         throw new ResponseException(400, "Expected: <username> <password>");
     }
     public String register(String... params) throws ResponseException {
-        if (params.length >= 2) {
-            this.auth = server.register(new RegisterRequest(params[0], params[1], params[2]));
+        if (params.length == 3) {
+            RegisterResponse res = server.register(new RegisterRequest(params[0], params[1], params[2]));
             userState = State.SIGNEDIN;
-            return String.format("Successfully registered user %s. You are now logged in.", auth.username());
+            auth = new RequestHeader(res.authToken());
+            return String.format("Successfully registered user %s. You are now logged in.", res.username());
         }
         throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
-    public String logout(String... params) throws ResponseException {
+    public String logout() throws ResponseException {
         server.logout(auth);
-        String returnString = "Successfully logged out user " + auth.username() + ".";
         this.userState = State.SIGNEDOUT;
-        this.auth = null;
-        return returnString;
+        auth = null;
+        return "Successfully signed out.";
     }
     public String createGame(String... params) throws ResponseException {
-        return "create-game";
+        if (params.length == 1) {
+            CreateGameResponse res = server.createGame(new CreateGameRequest(params[0]), auth);
+            return String.format("Successfully created game %d. Use the 'join' command to join the game.", res.gameID());
+        }
+        throw new ResponseException(400, "Expected: <game-name>");
     }
-    public String listGames(String... params) throws ResponseException {
-        return "list-games";
+    public String listGames() throws ResponseException {
+        return server.listGames(auth).toString();
     }
     public String joinGame(String... params) throws ResponseException {
-        return "join-game";
+        if (params.length == 2) {
+            server.joinGame(new JoinGameRequest(params[0].toUpperCase(), parseInt(params[1])), auth);
+            return String.format("Successfully joined game %s as the %s color.", params[1], params[0]);
+        }
+        throw new ResponseException(400, "Expected: <team-color ('WHITE'/'BLACK')> <game-id>");
     }
     public String joinObserver(String... params) throws ResponseException {
-        return "join-observer";
+        if (params.length == 1) {
+            server.joinGame(new JoinGameRequest(null, parseInt(params[0])), auth);
+            return String.format("Successfully joined game %s as an observer.", params[0]);
+        }
+        throw new ResponseException(400, "Expected: <game-id>");
     }
-    public String quit(String... params) throws ResponseException {
+    public String quit() throws ResponseException {
         return "quit";
+    }
+
+    public String clear() throws ResponseException {
+        server.clearApplication();
+        return "cleared\n";
+    }
+
+    public String print() {
+        ChessGamePrinter.printGame(game);
+        return "printed\n";
     }
 }

@@ -1,7 +1,9 @@
 package serviceTests;
 
+import model.responseModels.FailureType;
+import model.responseModels.ServiceResponse;
 import org.junit.jupiter.api.*;
-import server.responseModels.*;
+import model.responseModels.*;
 import service.*;
 
 class ListGamesServiceTests {

@@ -1,8 +1,12 @@
 package service;
 
 import dataAccess.DataAccessException;
-import server.responseModels.*;
-import model.*;
+import model.chessModels.UserData;
+import model.chessModels.AuthData;
+import model.responseModels.RegisterResponse;
+import model.responseModels.FailureResponse;
+import model.responseModels.FailureType;
+import model.responseModels.ServiceResponse;
 
 public class RegisterService extends Service {
     public ServiceResponse register(String username, String password, String email) {
