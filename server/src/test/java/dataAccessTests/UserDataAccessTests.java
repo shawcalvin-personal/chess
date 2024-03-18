@@ -3,7 +3,7 @@ package dataAccessTests;
 import dataAccess.DataAccessException;
 import dataAccess.SQLDataAccess.SQLUserDAO;
 import dataAccess.UserDAO;
-import model.UserData;
+import model.chessModels.UserData;
 import org.junit.jupiter.api.*;
 
 public class UserDataAccessTests {

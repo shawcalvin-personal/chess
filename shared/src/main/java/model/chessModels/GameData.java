@@ -1,4 +1,4 @@
-package model;
+package model.chessModels;
 
 import chess.ChessGame;
 import java.util.Collection;

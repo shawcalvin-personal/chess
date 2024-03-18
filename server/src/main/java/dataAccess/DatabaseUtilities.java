@@ -2,9 +2,9 @@ package dataAccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.chessModels.AuthData;
+import model.chessModels.GameData;
+import model.chessModels.UserData;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package service;
 
-import model.GameData;
+import model.chessModels.GameData;
 import server.responseModels.*;
 
 public class CreateGameService extends Service {

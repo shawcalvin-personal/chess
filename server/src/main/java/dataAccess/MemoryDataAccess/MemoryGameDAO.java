@@ -3,7 +3,7 @@ package dataAccess.MemoryDataAccess;
 import chess.ChessGame;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
-import model.GameData;
+import model.chessModels.GameData;
 
 import java.util.*;
 

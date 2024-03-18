@@ -4,7 +4,7 @@ import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
 import dataAccess.DatabaseUtilities;
-import model.AuthData;
+import model.chessModels.AuthData;
 
 import java.util.List;
 import java.util.UUID;

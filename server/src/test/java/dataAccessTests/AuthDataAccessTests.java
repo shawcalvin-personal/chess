@@ -5,8 +5,8 @@ import dataAccess.DataAccessException;
 import dataAccess.SQLDataAccess.SQLAuthDAO;
 import dataAccess.SQLDataAccess.SQLUserDAO;
 import dataAccess.UserDAO;
-import model.AuthData;
-import model.UserData;
+import model.chessModels.AuthData;
+import model.chessModels.UserData;
 import org.junit.jupiter.api.*;
 
 public class AuthDataAccessTests {

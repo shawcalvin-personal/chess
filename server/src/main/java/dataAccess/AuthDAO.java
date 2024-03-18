@@ -1,6 +1,6 @@
 package dataAccess;
 
-import model.*;
+import model.chessModels.AuthData;
 
 public interface AuthDAO {
 

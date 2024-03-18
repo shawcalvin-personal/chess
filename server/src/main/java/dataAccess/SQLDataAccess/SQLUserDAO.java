@@ -4,7 +4,7 @@ import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
 import dataAccess.DatabaseUtilities;
 import dataAccess.UserDAO;
-import model.UserData;
+import model.chessModels.UserData;
 import java.util.List;
 
 public class SQLUserDAO implements UserDAO {

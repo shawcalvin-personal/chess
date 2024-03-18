@@ -1,6 +1,6 @@
 package service;
 
-import model.AuthData;
+import model.chessModels.AuthData;
 import server.responseModels.FailureResponse;
 import server.responseModels.FailureType;
 import server.responseModels.LoginResponse;

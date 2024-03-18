@@ -4,8 +4,8 @@ import dataAccess.*;
 import dataAccess.MemoryDataAccess.*;
 import dataAccess.SQLDataAccess.SQLAuthDAO;
 import dataAccess.SQLDataAccess.SQLUserDAO;
-import model.AuthData;
-import model.UserData;
+import model.chessModels.AuthData;
+import model.chessModels.UserData;
 
 public class Service {
     public static UserDAO userDAO;

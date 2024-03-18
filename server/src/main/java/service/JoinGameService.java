@@ -1,7 +1,7 @@
 package service;
 
 import dataAccess.DataAccessException;
-import model.GameData;
+import model.chessModels.GameData;
 import server.responseModels.*;
 
 import java.util.Collection;

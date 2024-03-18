@@ -2,7 +2,7 @@ package dataAccess.MemoryDataAccess;
 
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
-import model.AuthData;
+import model.chessModels.AuthData;
 
 import java.util.HashMap;
 import java.util.Map;

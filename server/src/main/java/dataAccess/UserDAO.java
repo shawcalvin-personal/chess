@@ -1,6 +1,6 @@
 package dataAccess;
 
-import model.UserData;
+import model.chessModels.UserData;
 
 public interface UserDAO {
     /*

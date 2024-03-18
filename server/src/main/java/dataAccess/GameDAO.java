@@ -1,6 +1,6 @@
 package dataAccess;
 
-import model.GameData;
+import model.chessModels.GameData;
 
 import java.util.Collection;
 

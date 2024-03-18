@@ -1,6 +1,5 @@
 package server;
 
-import chess.ChessGame;
 import server.responseModels.*;
 import service.*;
 import spark.*;
