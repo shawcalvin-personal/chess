@@ -8,7 +8,7 @@ public class ClientHandler {
     private final ChessClient client;
 
     public ClientHandler(String serverUrl) {
-        client = new ChessClient(serverUrl, this);
+        client = new ChessClient(serverUrl);
     }
 
     public void run() {

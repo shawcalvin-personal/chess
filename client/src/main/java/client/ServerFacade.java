@@ -7,6 +7,10 @@ import java.net.*;
 import model.chessModels.AuthData;
 import model.chessModels.GameData;
 import model.chessModels.UserData;
+import model.requestModels.CreateGameRequest;
+import model.requestModels.JoinGameRequest;
+import model.requestModels.LoginRequest;
+import model.requestModels.RegisterRequest;
 
 public class ServerFacade {
     private final String serverUrl;
@@ -15,14 +19,14 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
     }
 
-    public AuthData login(UserData user) throws ResponseException {
+    public AuthData login(LoginRequest req) throws ResponseException {
         String path = "/session";
-        return this.makeRequest("POST", path, user, null, AuthData.class);
+        return this.makeRequest("POST", path, req, null, AuthData.class);
     }
 
-    public AuthData register(UserData user) throws ResponseException {
+    public AuthData register(RegisterRequest req) throws ResponseException {
         String path = "/user";
-        return this.makeRequest("POST", path, user, null, AuthData.class);
+        return this.makeRequest("POST", path, req, null, AuthData.class);
     }
 
     public void logout(AuthData auth) throws ResponseException {
@@ -30,20 +34,20 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, auth, null);
     }
 
-    public GameData createGame(GameData game, AuthData auth) throws ResponseException {
+    public GameData createGame(CreateGameRequest req, AuthData auth) throws ResponseException {
         String path = "/game";
-        return this.makeRequest("POST", path, game, auth, GameData.class);
+        return this.makeRequest("POST", path, req, auth, GameData.class);
     }
 
     public void listGames(AuthData auth) throws ResponseException {
         String path = "/game";
     }
 
-    public void joinGame(GameData game, AuthData auth) throws ResponseException {
+    public void joinGame(JoinGameRequest req, AuthData auth) throws ResponseException {
         String path = "/game";
     }
 
-    public void joinObserver(GameData game, AuthData auth) throws ResponseException {
+    public void joinObserver(JoinGameRequest req, AuthData auth) throws ResponseException {
         String path = "/game";
     }
 

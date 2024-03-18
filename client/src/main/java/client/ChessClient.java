@@ -1,25 +1,18 @@
 package client;
 
-import model.chessModels.AuthData;
-import model.chessModels.UserData;
+import model.chessModels.*;
+import model.requestModels.*;
 
 import java.util.Arrays;
 
 public class ChessClient {
 
     private final ServerFacade server;
-    private final String serverUrl;
-    private final ClientHandler clientHandler;
     private State userState = State.SIGNEDOUT;
-    private UserData user;
     private AuthData auth;
 
-    public ChessClient(String serverUrl, ClientHandler clientHandler) {
+    public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
-        this.clientHandler = clientHandler;
-        this.user = null;
-        this.auth = null;
     }
 
     public String eval(String input) {
@@ -65,29 +58,24 @@ public class ChessClient {
 
     public String login(String... params) throws ResponseException {
         if (params.length >= 2) {
-            UserData user = new UserData(params[0], params[1], null);
-            this.auth = server.login(user);
             userState = State.SIGNEDIN;
-            this.user = user;
-            return String.format("You are signed in as %s.", user.username());
+            auth = server.login(new LoginRequest(params[0], params[1]));
+            return String.format("You are signed in as %s.", auth.username());
         }
         throw new ResponseException(400, "Expected: <username> <password>");
     }
     public String register(String... params) throws ResponseException {
         if (params.length >= 2) {
-            UserData user = new UserData(params[0], params[1], params[2]);
-            this.auth = server.register(user);
+            this.auth = server.register(new RegisterRequest(params[0], params[1], params[2]));
             userState = State.SIGNEDIN;
-            this.user = user;
-            return String.format("Successfully registered user %s. You are now logged in.", user.username());
+            return String.format("Successfully registered user %s. You are now logged in.", auth.username());
         }
         throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
     public String logout(String... params) throws ResponseException {
-        server.logout(this.auth);
-        String returnString = "Successfully logged out user " + this.user.username() + ".";
+        server.logout(auth);
+        String returnString = "Successfully logged out user " + auth.username() + ".";
         this.userState = State.SIGNEDOUT;
-        this.user = null;
         this.auth = null;
         return returnString;
     }
