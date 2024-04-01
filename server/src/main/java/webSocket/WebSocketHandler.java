@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import org.springframework.security.core.userdetails.User;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
@@ -14,13 +13,13 @@ import java.io.IOException;
 @WebSocket
 public class WebSocketHandler {
 
-    private final ConnectionManager connections = new ConnectionManager();
+    private final ConnectionManager connectionManager = new ConnectionManager();
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
-        UserGameCommand action = new Gson().fromJson(message, UserGameCommand.class);
-        switch (action.getCommandType()) {
-            case JOIN_PLAYER -> joinPlayer(action, message);
+        UserGameCommand request = new Gson().fromJson(message, UserGameCommand.class);
+        switch (request.getCommandType()) {
+            case JOIN_PLAYER -> joinPlayer(request, session);
             case JOIN_OBSERVER -> joinObserver();
             case MAKE_MOVE -> makeMove();
             case LEAVE -> leave();
@@ -28,11 +27,11 @@ public class WebSocketHandler {
         }
     }
 
-    private void joinPlayer(UserGameCommand userCommand, String message) {
-        System.out.println("Joining game!!");
-        System.out.println(userCommand);
-        System.out.println(message);
-
+    private void joinPlayer(UserGameCommand request, Session session) throws IOException {
+        connectionManager.add(request.getAuthString(), session);
+        ServerMessage notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        notification.notificationMessage = String.format("%s is in the shop", request.getAuthString());
+        connectionManager.broadcast(null, notification);
     }
 
     private void joinObserver() {

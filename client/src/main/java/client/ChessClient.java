@@ -1,15 +1,13 @@
 package client;
 
-import chess.ChessBoard;
 import chess.ChessGame;
-import chess.ChessPiece;
 import client.webSocket.NotificationHandler;
 import client.webSocket.WebSocketFacade;
+import model.chessModels.AuthData;
 import model.requestModels.*;
 import model.responseModels.*;
 import model.requestModels.LoginRequest;
 import model.requestModels.RegisterRequest;
-import model.requestModels.RequestHeader;
 import ui.ChessGamePrinter;
 
 
@@ -22,10 +20,10 @@ public class ChessClient {
     private final ServerFacade server;
     private WebSocketFacade ws;
     private State userState = State.SIGNEDOUT;
-    private RequestHeader auth;
+    private AuthData auth;
     private ChessGame game;
-    private String serverUrl;
-    private NotificationHandler notificationHandler;
+    private final String serverUrl;
+    private final NotificationHandler notificationHandler;
 
     public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
         this.serverUrl = serverUrl;
@@ -45,10 +43,10 @@ public class ChessClient {
                 case "login" -> login(params);
                 case "register" -> register(params);
                 case "logout" -> logout();
-                case "creategame" -> createGame(params);
-                case "listgames" -> listGames();
-                case "joingame" -> joinPlayer(params);
-                case "joinobserver" -> joinObserver(params);
+                case "create-game" -> createGame(params);
+                case "list-games" -> listGames();
+                case "join-player" -> joinPlayer(params);
+                case "join-observer" -> joinObserver(params);
                 case "clear" -> clear();
                 case "print" -> print();
                 case "quit" -> quit();
@@ -82,7 +80,7 @@ public class ChessClient {
         if (params.length == 2) {
             LoginResponse res = server.login(new LoginRequest(params[0], params[1]));
             userState = State.SIGNEDIN;
-            auth = new RequestHeader(res.authToken());
+            auth = new AuthData(res.username(), res.authToken());
             return String.format("You are signed in as %s.", res.username());
         }
         throw new ResponseException(400, "Expected: <username> <password>");
@@ -91,7 +89,7 @@ public class ChessClient {
         if (params.length == 3) {
             RegisterResponse res = server.register(new RegisterRequest(params[0], params[1], params[2]));
             userState = State.SIGNEDIN;
-            auth = new RequestHeader(res.authToken());
+            auth = new AuthData(res.username(), res.authToken());
             return String.format("Successfully registered user %s. You are now logged in.", res.username());
         }
         throw new ResponseException(400, "Expected: <username> <password> <email>");
@@ -116,7 +114,7 @@ public class ChessClient {
         if (params.length == 2) {
             server.joinGame(new JoinGameRequest(params[0].toUpperCase(), parseInt(params[1])), auth);
             ws = new WebSocketFacade(serverUrl, notificationHandler);
-            ws.joinPlayer(auth);
+//            ws.joinPlayer();
             return String.format("Successfully joined game %s as the %s color.", params[1], params[0]);
         }
         throw new ResponseException(400, "Expected: <team-color ('WHITE'/'BLACK')> <game-id>");

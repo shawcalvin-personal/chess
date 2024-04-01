@@ -2,6 +2,7 @@ package clientTests;
 
 import client.ResponseException;
 import client.ServerFacade;
+import model.chessModels.AuthData;
 import model.requestModels.*;
 import model.responseModels.*;
 import org.junit.jupiter.api.*;
@@ -21,8 +22,8 @@ public class ServerFacadeTests {
     private static String loggedInUsername;
     private static String loggedInPassword;
     private static String loggedInEmail;
-    private static RequestHeader loggedInAuth;
-    private static RequestHeader invalidAuth;
+    private static AuthData loggedInAuth;
+    private static AuthData invalidAuth;
     private static String newGameName;
     private static String createdGameName;
     private static Integer createdGameID;
@@ -48,14 +49,14 @@ public class ServerFacadeTests {
         newGameName = "new-game";
         createdGameName = "created-game";
 
-        invalidAuth = new RequestHeader("invalid-auth-token");
+        invalidAuth = new AuthData("invalid-username", "invalid-auth-token");
 
         try {
             serverFacade.clearApplication();
             serverFacade.register(new RegisterRequest(registeredUsername, registeredPassword, registeredEmail));
             serverFacade.register(new RegisterRequest(loggedInUsername, loggedInPassword, loggedInEmail));
             LoginResponse res = serverFacade.login(new LoginRequest(loggedInUsername, loggedInPassword));
-            loggedInAuth = new RequestHeader(res.authToken());
+            loggedInAuth = new AuthData(res.username(), res.authToken());
             createdGameID = serverFacade.createGame(new CreateGameRequest(createdGameName), loggedInAuth).gameID();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -68,7 +69,7 @@ public class ServerFacadeTests {
             serverFacade.register(new RegisterRequest(registeredUsername, registeredPassword, registeredEmail));
             serverFacade.register(new RegisterRequest(loggedInUsername, loggedInPassword, loggedInEmail));
             LoginResponse res = serverFacade.login(new LoginRequest(loggedInUsername, loggedInPassword));
-            loggedInAuth = new RequestHeader(res.authToken());
+            loggedInAuth = new AuthData(res.username(), res.authToken());
             createdGameID = serverFacade.createGame(new CreateGameRequest(createdGameName), loggedInAuth).gameID();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -138,7 +139,7 @@ public class ServerFacadeTests {
     public void joinGameValid() {
         Assertions.assertDoesNotThrow(() -> {
             LoginResponse loginResponse = serverFacade.login(new LoginRequest(registeredUsername, registeredPassword));
-            RequestHeader registeredAuth = new RequestHeader(loginResponse.authToken());
+            AuthData registeredAuth = new AuthData(loginResponse.username(), loginResponse.authToken());
             serverFacade.joinGame(new JoinGameRequest("WHITE", createdGameID), loggedInAuth);
             serverFacade.joinGame(new JoinGameRequest("BLACK", createdGameID), registeredAuth);
 
@@ -154,7 +155,7 @@ public class ServerFacadeTests {
     public void joinGameInvalidID() {
         Assertions.assertThrows(ResponseException.class, () -> {
             LoginResponse loginResponse = serverFacade.login(new LoginRequest(registeredUsername, registeredPassword));
-            RequestHeader registeredAuth = new RequestHeader(loginResponse.authToken());
+            AuthData registeredAuth = new AuthData(loginResponse.username(), loginResponse.authToken());
             serverFacade.joinGame(new JoinGameRequest("WHITE", 99), loggedInAuth);
             serverFacade.joinGame(new JoinGameRequest("BLACK", 99), registeredAuth);
 
@@ -170,7 +171,7 @@ public class ServerFacadeTests {
     public void joinObserverValid() {
         Assertions.assertDoesNotThrow(() -> {
             LoginResponse loginResponse = serverFacade.login(new LoginRequest(registeredUsername, registeredPassword));
-            RequestHeader registeredAuth = new RequestHeader(loginResponse.authToken());
+            AuthData registeredAuth = new AuthData(loginResponse.username(), loginResponse.authToken());
             serverFacade.joinGame(new JoinGameRequest(null, createdGameID), loggedInAuth);
             serverFacade.joinGame(new JoinGameRequest(null, createdGameID), registeredAuth);
         } );
@@ -179,7 +180,7 @@ public class ServerFacadeTests {
     public void joinObserverInvalidID() {
         Assertions.assertThrows(ResponseException.class, () -> {
             LoginResponse loginResponse = serverFacade.login(new LoginRequest(registeredUsername, registeredPassword));
-            RequestHeader registeredAuth = new RequestHeader(loginResponse.authToken());
+            AuthData registeredAuth = new AuthData(loginResponse.username(), loginResponse.authToken());
             serverFacade.joinGame(new JoinGameRequest(null, 99), loggedInAuth);
             serverFacade.joinGame(new JoinGameRequest(null, 99), registeredAuth);
         } );
@@ -200,8 +201,8 @@ public class ServerFacadeTests {
         Assertions.assertDoesNotThrow(() -> {
             serverFacade.clearApplication();
             RegisterResponse res = serverFacade.register(new RegisterRequest(loggedInUsername, loggedInPassword, loggedInEmail));
-            RequestHeader auth = new RequestHeader(res.authToken());
-            ListGamesResponse listResult = serverFacade.listGames(auth);
+            AuthData registeredAuth = new AuthData(res.username(), res.authToken());
+            ListGamesResponse listResult = serverFacade.listGames(registeredAuth);
             Assertions.assertEquals(0, listResult.games().size());
         } );
     }

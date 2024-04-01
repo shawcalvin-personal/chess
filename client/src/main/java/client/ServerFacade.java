@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.net.*;
 
+import model.chessModels.AuthData;
 import model.requestModels.*;
 import model.responseModels.*;
 
@@ -24,24 +25,24 @@ public class ServerFacade {
         return this.makeRequest("POST", path, req, null, RegisterResponse.class);
     }
 
-    public void logout(RequestHeader header) throws ResponseException {
+    public void logout(AuthData auth) throws ResponseException {
         String path = "/session";
-        this.makeRequest("DELETE", path, null, header, LogoutResponse.class);
+        this.makeRequest("DELETE", path, null, auth, LogoutResponse.class);
     }
 
-    public CreateGameResponse createGame(CreateGameRequest req, RequestHeader header) throws ResponseException {
+    public CreateGameResponse createGame(CreateGameRequest req, AuthData auth) throws ResponseException {
         String path = "/game";
-        return this.makeRequest("POST", path, req, header, CreateGameResponse.class);
+        return this.makeRequest("POST", path, req, auth, CreateGameResponse.class);
     }
 
-    public ListGamesResponse listGames(RequestHeader header) throws ResponseException {
+    public ListGamesResponse listGames(AuthData auth) throws ResponseException {
         String path = "/game";
-        return this.makeRequest("GET", path, null, header, ListGamesResponse.class);
+        return this.makeRequest("GET", path, null, auth, ListGamesResponse.class);
     }
 
-    public void joinGame(JoinGameRequest req, RequestHeader header) throws ResponseException {
+    public void joinGame(JoinGameRequest req, AuthData auth) throws ResponseException {
         String path = "/game";
-        this.makeRequest("PUT", path, req, header, JoinGameResponse.class);
+        this.makeRequest("PUT", path, req, auth, JoinGameResponse.class);
     }
 
     public void clearApplication() throws ResponseException {
@@ -49,15 +50,15 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object requestBody, RequestHeader requestHeader, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object requestBody, AuthData auth, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
-            if (requestHeader != null) {
-                http.addRequestProperty("Authorization", requestHeader.authToken());
+            if (auth != null) {
+                http.addRequestProperty("Authorization", auth.authToken());
             }
 
             writeBody(requestBody, http);

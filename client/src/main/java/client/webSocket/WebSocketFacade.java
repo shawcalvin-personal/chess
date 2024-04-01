@@ -1,6 +1,7 @@
 package client.webSocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import client.ResponseException;
 import com.google.gson.Gson;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -26,6 +27,7 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
+                    System.out.println("Received a message!!");
                     ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
                     notificationHandler.notify(notification);
                 }
@@ -34,13 +36,19 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-    public void joinPlayer(int gameID, ChessGame.TeamColor playerColor) {
-        try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.JOIN_PLAYER, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
+    public void joinPlayer(String username, String authToken, int gameID, ChessGame.TeamColor playerColor) throws ResponseException {
+    }
+
+    public void joinObserver(String username, String authToken, int gameID) throws ResponseException {
+    }
+
+    public void makeMove(String username, String authToken, int gameID, ChessMove move) throws ResponseException {
+    }
+
+    public void resign(String username, String authToken, int gameID) throws ResponseException {
+    }
+
+    public void leave(String username, String authToken, int gameID) throws ResponseException {
     }
 
     @Override

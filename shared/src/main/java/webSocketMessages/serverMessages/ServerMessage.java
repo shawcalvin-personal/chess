@@ -10,6 +10,7 @@ import java.util.Objects;
  */
 public class ServerMessage {
     ServerMessageType serverMessageType;
+    public String notificationMessage;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -24,6 +25,8 @@ public class ServerMessage {
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
     }
+
+    public String getNotificationMessage() { return notificationMessage; }
 
     @Override
     public boolean equals(Object o) {
