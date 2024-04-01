@@ -5,23 +5,35 @@ import model.responseModels.StatusCodeResponse;
 import model.responseModels.FailureResponse;
 import service.*;
 import spark.*;
+import webSocket.WebSocketHandler;
 
 public class Server {
-    ClearService clearService = new ClearService();
-    RegisterService registerService = new RegisterService();
-    LoginService loginService = new LoginService();
-    LogoutService logoutService = new LogoutService();
-    ListGamesService listGamesService = new ListGamesService();
-    CreateGameService createGameService = new CreateGameService();
-    JoinGameService joinGameService = new JoinGameService();
-    public static void main(String[] args) {
-        new Server().run(8080);
+    ClearService clearService;
+    RegisterService registerService;
+    LoginService loginService;
+    LogoutService logoutService;
+    ListGamesService listGamesService;
+    CreateGameService createGameService;
+    JoinGameService joinGameService;
+    private WebSocketHandler webSocketHandler;
+
+    public Server() {
+        this.clearService = new ClearService();
+        this.registerService = new RegisterService();
+        this.loginService = new LoginService();
+        this.logoutService = new LogoutService();
+        this.listGamesService = new ListGamesService();
+        this.createGameService = new CreateGameService();
+        this.joinGameService = new JoinGameService();
+        this.webSocketHandler = new WebSocketHandler();
     }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/connect", webSocketHandler);
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", this::register);

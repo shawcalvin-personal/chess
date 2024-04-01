@@ -3,6 +3,8 @@ package client;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
+import client.webSocket.NotificationHandler;
+import client.webSocket.WebSocketFacade;
 import model.requestModels.*;
 import model.responseModels.*;
 import model.requestModels.LoginRequest;
@@ -18,11 +20,16 @@ import static java.lang.Integer.parseInt;
 public class ChessClient {
 
     private final ServerFacade server;
+    private WebSocketFacade ws;
     private State userState = State.SIGNEDOUT;
     private RequestHeader auth;
     private ChessGame game;
+    private String serverUrl;
+    private NotificationHandler notificationHandler;
 
-    public ChessClient(String serverUrl) {
+    public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
+        this.serverUrl = serverUrl;
+        this.notificationHandler = notificationHandler;
         server = new ServerFacade(serverUrl);
         game = new ChessGame();
         game.init();
@@ -40,7 +47,7 @@ public class ChessClient {
                 case "logout" -> logout();
                 case "creategame" -> createGame(params);
                 case "listgames" -> listGames();
-                case "joingame" -> joinGame(params);
+                case "joingame" -> joinPlayer(params);
                 case "joinobserver" -> joinObserver(params);
                 case "clear" -> clear();
                 case "print" -> print();
@@ -105,9 +112,11 @@ public class ChessClient {
     public String listGames() throws ResponseException {
         return server.listGames(auth).toString();
     }
-    public String joinGame(String... params) throws ResponseException {
+    public String joinPlayer(String... params) throws ResponseException {
         if (params.length == 2) {
             server.joinGame(new JoinGameRequest(params[0].toUpperCase(), parseInt(params[1])), auth);
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            ws.joinPlayer(auth);
             return String.format("Successfully joined game %s as the %s color.", params[1], params[0]);
         }
         throw new ResponseException(400, "Expected: <team-color ('WHITE'/'BLACK')> <game-id>");
