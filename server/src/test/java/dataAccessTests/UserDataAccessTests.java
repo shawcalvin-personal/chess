@@ -12,7 +12,7 @@ public class UserDataAccessTests {
     static UserData existingUser;
     @BeforeAll
     public static void init() {
-        userDAO = new SQLUserDAO();
+        userDAO = SQLUserDAO.getInstance();
         newUser = new UserData("new-username", "new-password", "new-email");
         existingUser = new UserData("existing-username", "existing-password", "existing-email");
     }

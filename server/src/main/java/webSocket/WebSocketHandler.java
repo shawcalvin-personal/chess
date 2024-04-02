@@ -1,5 +1,6 @@
 package webSocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -28,10 +29,20 @@ public class WebSocketHandler {
     }
 
     private void joinPlayer(UserGameCommand request, Session session) throws IOException {
+        // test if player spot is open
+
+        // if not open, send ERROR
+
+        // if open, join game as specified color and broadcast changes
         connectionManager.add(request.getAuthString(), session);
-        ServerMessage notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        notification.notificationMessage = String.format("%s is in the shop", request.getAuthString());
-        connectionManager.broadcast(null, notification);
+        ServerMessage rootNotification = new ServerMessage.Builder(ServerMessage.ServerMessageType.LOAD_GAME)
+            .game(new ChessGame())
+            .build();
+        ServerMessage broadcastNotification = new ServerMessage.Builder(ServerMessage.ServerMessageType.NOTIFICATION)
+            .message(String.format("%s joined the game.", request.getUsername()))
+            .build();
+        connectionManager.send(session, rootNotification);
+        connectionManager.broadcast(request.getAuthString(), broadcastNotification);
     }
 
     private void joinObserver() {

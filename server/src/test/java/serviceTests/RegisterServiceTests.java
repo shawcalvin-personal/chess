@@ -4,6 +4,7 @@ import model.responseModels.FailureType;
 import model.responseModels.ServiceResponse;
 import org.junit.jupiter.api.*;
 import model.responseModels.*;
+import service.ChessService;
 import service.ClearService;
 import service.RegisterService;
 
@@ -14,8 +15,7 @@ class RegisterServiceTests {
     private static String existingUsername;
     private static String existingPassword;
     private static String existingEmail;
-    private static RegisterService registerService;
-    private static ClearService clearService;
+    private static ChessService service;
 
     @BeforeAll
     public static void init() {
@@ -27,20 +27,19 @@ class RegisterServiceTests {
         existingPassword = "existing-password";
         existingEmail = "existing-email";
 
-        registerService = new RegisterService();
-        clearService = new ClearService();
+        service = new ChessService();
     }
 
 
     @BeforeEach
     public void setup() {
-        clearService.clearDatabase();
-        registerService.register(existingUsername, existingPassword, existingEmail);
+        service.clearDatabase();
+        service.register(existingUsername, existingPassword, existingEmail);
     }
 
     @Test
     void registerNewUser() {
-        ServiceResponse response = registerService.register(newUsername, newPassword, newEmail);
+        ServiceResponse response = service.register(newUsername, newPassword, newEmail);
         Assertions.assertEquals(RegisterResponse.class, response.getClass());
 
         RegisterResponse registerResponse = (RegisterResponse) response;
@@ -50,7 +49,7 @@ class RegisterServiceTests {
 
     @Test
     void registerExistingUser() {
-        ServiceResponse response = registerService.register(existingUsername, existingPassword, existingEmail);
+        ServiceResponse response = service.register(existingUsername, existingPassword, existingEmail);
         Assertions.assertEquals(FailureResponse.class, response.getClass());
 
         FailureResponse failureResponse = (FailureResponse) response;
@@ -59,7 +58,7 @@ class RegisterServiceTests {
 
     @Test
     void registerNullPassword() {
-        ServiceResponse response = registerService.register(existingUsername, null, existingEmail);
+        ServiceResponse response = service.register(existingUsername, null, existingEmail);
         Assertions.assertEquals(FailureResponse.class, response.getClass());
 
         FailureResponse failureResponse = (FailureResponse) response;

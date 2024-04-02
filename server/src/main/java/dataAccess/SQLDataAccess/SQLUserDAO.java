@@ -8,14 +8,22 @@ import model.chessModels.UserData;
 import java.util.List;
 
 public class SQLUserDAO implements UserDAO {
-    public SQLUserDAO() {
+    private static SQLUserDAO instance;
+    private SQLUserDAO() {
         try {
             DatabaseManager.configureDatabase();
         } catch (DataAccessException e) {
             System.out.println("Unable to initialize database: " + e.getMessage());
         }
-
     }
+
+    public static SQLUserDAO getInstance() {
+        if (instance == null) {
+            instance = new SQLUserDAO();
+        }
+        return instance;
+    }
+
     @Override
     public UserData create(String username, String password, String email) throws DataAccessException {
         String sql = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";

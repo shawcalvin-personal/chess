@@ -8,23 +8,11 @@ import spark.*;
 import webSocket.WebSocketHandler;
 
 public class Server {
-    ClearService clearService;
-    RegisterService registerService;
-    LoginService loginService;
-    LogoutService logoutService;
-    ListGamesService listGamesService;
-    CreateGameService createGameService;
-    JoinGameService joinGameService;
+    ChessService service;
     private WebSocketHandler webSocketHandler;
 
     public Server() {
-        this.clearService = new ClearService();
-        this.registerService = new RegisterService();
-        this.loginService = new LoginService();
-        this.logoutService = new LogoutService();
-        this.listGamesService = new ListGamesService();
-        this.createGameService = new CreateGameService();
-        this.joinGameService = new JoinGameService();
+        this.service = new ChessService();
         this.webSocketHandler = new WebSocketHandler();
     }
 
@@ -49,7 +37,7 @@ public class Server {
     }
     private String register(Request req, Response res) {
         try {
-            ServiceResponse serviceResponse = registerService.register(getRequestParameter(req, "username"), getRequestParameter(req, "password"), getRequestParameter(req, "email"));
+            ServiceResponse serviceResponse = service.register(getRequestParameter(req, "username"), getRequestParameter(req, "password"), getRequestParameter(req, "email"));
             return parseRequest(serviceResponse, res);
         } catch (Exception e) {
             res.status(500);
@@ -60,7 +48,7 @@ public class Server {
     private String login(Request req, Response res) {
         try {
             var body = Serializer.getBody(req);
-            ServiceResponse serviceResponse = loginService.login(body.get("username").toString(), body.get("password").toString());
+            ServiceResponse serviceResponse = service.login(body.get("username").toString(), body.get("password").toString());
             return parseRequest(serviceResponse, res);
         } catch (Exception e) {
             res.status(500);
@@ -70,7 +58,7 @@ public class Server {
 
     private String logout(Request req, Response res) {
         try {
-            ServiceResponse serviceResponse = logoutService.logout(req.headers("Authorization"));
+            ServiceResponse serviceResponse = service.logout(req.headers("Authorization"));
             return parseRequest(serviceResponse, res);
         } catch (Exception e) {
             res.status(500);
@@ -80,7 +68,7 @@ public class Server {
 
     private String listGames(Request req, Response res) {
         try {
-            ServiceResponse serviceResponse = listGamesService.listGames(req.headers("Authorization"));
+            ServiceResponse serviceResponse = service.listGames(req.headers("Authorization"));
             return parseRequest(serviceResponse, res);
         } catch (Exception e) {
             res.status(500);
@@ -90,7 +78,7 @@ public class Server {
 
     private String createGame(Request req, Response res) {
         try {
-            ServiceResponse serviceResponse = createGameService.createGame(req.headers("Authorization"), getRequestParameter(req, "gameName"));
+            ServiceResponse serviceResponse = service.createGame(req.headers("Authorization"), getRequestParameter(req, "gameName"));
             return parseRequest(serviceResponse, res);
         } catch (Exception e) {
             res.status(500);
@@ -103,7 +91,7 @@ public class Server {
             var body = Serializer.getBody(req);
             Double serializedGameID = body.get("gameID") == null ? null : (Double) body.get("gameID");
             Integer gameID = serializedGameID == null ? null : serializedGameID.intValue();
-            ServiceResponse serviceResponse = joinGameService.joinGame(req.headers("Authorization"), getRequestParameter(req, "playerColor"), gameID);
+            ServiceResponse serviceResponse = service.joinGame(req.headers("Authorization"), getRequestParameter(req, "playerColor"), gameID);
             return parseRequest(serviceResponse, res);
         } catch (Exception e) {
             System.out.println("ERROR MESSAGE: " + e.getMessage());
@@ -114,7 +102,7 @@ public class Server {
 
     private String clearApplication(Request req, Response res) {
         try {
-            ServiceResponse serviceResponse = clearService.clearDatabase();
+            ServiceResponse serviceResponse = service.clearDatabase();
             return parseRequest(serviceResponse, res);
         } catch (Exception e) {
             res.status(500);

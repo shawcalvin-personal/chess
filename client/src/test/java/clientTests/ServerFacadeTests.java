@@ -1,5 +1,6 @@
 package clientTests;
 
+import chess.ChessGame;
 import client.ResponseException;
 import client.ServerFacade;
 import model.chessModels.AuthData;
@@ -140,8 +141,8 @@ public class ServerFacadeTests {
         Assertions.assertDoesNotThrow(() -> {
             LoginResponse loginResponse = serverFacade.login(new LoginRequest(registeredUsername, registeredPassword));
             AuthData registeredAuth = new AuthData(loginResponse.username(), loginResponse.authToken());
-            serverFacade.joinGame(new JoinGameRequest("WHITE", createdGameID), loggedInAuth);
-            serverFacade.joinGame(new JoinGameRequest("BLACK", createdGameID), registeredAuth);
+            serverFacade.joinGame(new JoinGameRequest(createdGameID, ChessGame.TeamColor.WHITE), loggedInAuth);
+            serverFacade.joinGame(new JoinGameRequest(createdGameID, ChessGame.TeamColor.BLACK), registeredAuth);
 
             ListGamesResponse listResult = serverFacade.listGames(loggedInAuth);
 
@@ -156,8 +157,8 @@ public class ServerFacadeTests {
         Assertions.assertThrows(ResponseException.class, () -> {
             LoginResponse loginResponse = serverFacade.login(new LoginRequest(registeredUsername, registeredPassword));
             AuthData registeredAuth = new AuthData(loginResponse.username(), loginResponse.authToken());
-            serverFacade.joinGame(new JoinGameRequest("WHITE", 99), loggedInAuth);
-            serverFacade.joinGame(new JoinGameRequest("BLACK", 99), registeredAuth);
+            serverFacade.joinGame(new JoinGameRequest(99, ChessGame.TeamColor.WHITE), loggedInAuth);
+            serverFacade.joinGame(new JoinGameRequest(99, ChessGame.TeamColor.BLACK), registeredAuth);
 
             ListGamesResponse listResult = serverFacade.listGames(loggedInAuth);
 
@@ -172,8 +173,8 @@ public class ServerFacadeTests {
         Assertions.assertDoesNotThrow(() -> {
             LoginResponse loginResponse = serverFacade.login(new LoginRequest(registeredUsername, registeredPassword));
             AuthData registeredAuth = new AuthData(loginResponse.username(), loginResponse.authToken());
-            serverFacade.joinGame(new JoinGameRequest(null, createdGameID), loggedInAuth);
-            serverFacade.joinGame(new JoinGameRequest(null, createdGameID), registeredAuth);
+            serverFacade.joinGame(new JoinGameRequest(createdGameID, null), loggedInAuth);
+            serverFacade.joinGame(new JoinGameRequest(createdGameID, null), registeredAuth);
         } );
     }
     @Test
@@ -181,8 +182,8 @@ public class ServerFacadeTests {
         Assertions.assertThrows(ResponseException.class, () -> {
             LoginResponse loginResponse = serverFacade.login(new LoginRequest(registeredUsername, registeredPassword));
             AuthData registeredAuth = new AuthData(loginResponse.username(), loginResponse.authToken());
-            serverFacade.joinGame(new JoinGameRequest(null, 99), loggedInAuth);
-            serverFacade.joinGame(new JoinGameRequest(null, 99), registeredAuth);
+            serverFacade.joinGame(new JoinGameRequest(99, null), loggedInAuth);
+            serverFacade.joinGame(new JoinGameRequest(99, null), registeredAuth);
         } );
     }
     @Test

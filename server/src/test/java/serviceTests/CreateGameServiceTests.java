@@ -11,9 +11,7 @@ class CreateGameServiceTests {
     private static String existingPassword;
     private static String existingEmail;
     private static String existingAuthToken;
-    private static RegisterService registerService;
-    private static CreateGameService createGameService;
-    private static ClearService clearService;
+    private static ChessService service;
 
     @BeforeAll
     public static void init() {
@@ -21,23 +19,21 @@ class CreateGameServiceTests {
         existingPassword = "existing-password";
         existingEmail = "existing-email";
 
-        registerService = new RegisterService();
-        createGameService = new CreateGameService();
-        clearService = new ClearService();
+        service = new ChessService();
     }
 
 
     @BeforeEach
     public void setup() {
-        clearService.clearDatabase();
-        RegisterResponse response = (RegisterResponse) registerService.register(existingUsername, existingPassword, existingEmail);
+        service.clearDatabase();
+        RegisterResponse response = (RegisterResponse) service.register(existingUsername, existingPassword, existingEmail);
         existingAuthToken = response.authToken();
     }
 
     @Test
     void createGameValid() {
         String gameName = "cool-new-game";
-        ServiceResponse response = createGameService.createGame(existingAuthToken, gameName);
+        ServiceResponse response = service.createGame(existingAuthToken, gameName);
         Assertions.assertEquals(CreateGameResponse.class, response.getClass());
 
         CreateGameResponse createGameResponse = (CreateGameResponse) response;
@@ -47,7 +43,7 @@ class CreateGameServiceTests {
     @Test
     void createGameBadAuth() {
         String gameName = "cool-new-game";
-        ServiceResponse response = createGameService.createGame("invalid-auth-token", gameName);
+        ServiceResponse response = service.createGame("invalid-auth-token", gameName);
         Assertions.assertEquals(FailureResponse.class, response.getClass());
 
         FailureResponse failureResponse = (FailureResponse) response;
@@ -56,7 +52,7 @@ class CreateGameServiceTests {
 
     @Test
     void createGameNullName() {
-        ServiceResponse response = createGameService.createGame(existingAuthToken, null);
+        ServiceResponse response = service.createGame(existingAuthToken, null);
         Assertions.assertEquals(FailureResponse.class, response.getClass());
 
         FailureResponse failureResponse = (FailureResponse) response;

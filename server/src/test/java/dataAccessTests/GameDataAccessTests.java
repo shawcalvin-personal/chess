@@ -28,8 +28,8 @@ public class GameDataAccessTests {
     static GameData existingGame;
     @BeforeAll
     public static void init() {
-        userDAO = new SQLUserDAO();
-        gameDAO = new SQLGameDAO();
+        userDAO = SQLUserDAO.getInstance();
+        gameDAO = SQLGameDAO.getInstance();
         newWhiteUser = new UserData("new-white-username", "new-white-password", "new-white-email");
         newBlackUser = new UserData("new-black-username", "new-black-password", "new-black-email");
         existingWhiteUser = new UserData("existing-white-username", "existing-white-password", "existing-white-email");

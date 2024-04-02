@@ -1,4 +1,6 @@
 package model.requestModels;
 
-public record JoinGameRequest(String playerColor, Integer gameID) {
+import chess.ChessGame;
+
+public record JoinGameRequest(Integer gameID, ChessGame.TeamColor playerColor) {
 }

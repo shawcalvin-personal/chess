@@ -7,6 +7,7 @@ import model.responseModels.FailureResponse;
 import model.responseModels.FailureType;
 import model.responseModels.ServiceResponse;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class JoinGameService extends Service {
@@ -25,8 +26,10 @@ public class JoinGameService extends Service {
             String whiteUsername = game.whiteUsername();
             String blackUsername = game.blackUsername();
             Collection<String> observerUsernames = game.observerUsernames();
+            System.out.println(observerUsernames);
             String playerUsername = authDAO.get(authToken).username();
             if (playerColor == null) {
+                observerUsernames = game.observerUsernames() == null ? new ArrayList<>() : game.observerUsernames();
                 observerUsernames.add(playerUsername);
             } else if (playerColor.equals(whiteColor) && whiteUsername == null) {
                 whiteUsername = playerUsername;
@@ -41,7 +44,7 @@ public class JoinGameService extends Service {
             System.out.println(e.getMessage());
             return new FailureResponse(FailureType.BAD_REQUEST, badRequestMessage);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("ERROR: " + e.getMessage());
             return new FailureResponse(FailureType.SERVER_ERROR, getServerErrorMessage(e));
         }
     }

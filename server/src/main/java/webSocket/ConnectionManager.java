@@ -1,12 +1,11 @@
 package webSocket;
 
 import org.eclipse.jetty.websocket.api.Session;
-import webSocket.Connection;
 import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
@@ -33,8 +32,15 @@ public class ConnectionManager {
             }
         }
 
-        // Clean up any connections that were left open.
-        for (var c : removeList) {
+        cleanConnections(removeList);
+    }
+
+    public void send(Session session, ServerMessage notification) throws IOException {
+        session.getRemote().sendString(notification.toString());
+    }
+
+    private void cleanConnections(Collection<Connection> openConnections) {
+        for (var c : openConnections) {
             connections.remove(c.authToken);
         }
     }

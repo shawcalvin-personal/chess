@@ -71,7 +71,7 @@ public class ChessClient {
                 - logout
                 - create-game <game-name>
                 - list-games
-                - join-game <player-color> <game-id>
+                - join-player <player-color> <game-id>
                 - join-observer <game-id>
                 """;
     }
@@ -112,16 +112,18 @@ public class ChessClient {
     }
     public String joinPlayer(String... params) throws ResponseException {
         if (params.length == 2) {
-            server.joinGame(new JoinGameRequest(params[0].toUpperCase(), parseInt(params[1])), auth);
+            ChessGame.TeamColor playerColor = getTeamColor(params[0]);
+            int gameID = parseInt(params[1]);
+            server.joinGame(new JoinGameRequest(gameID, playerColor), auth);
             ws = new WebSocketFacade(serverUrl, notificationHandler);
-//            ws.joinPlayer();
+            ws.joinPlayer(auth, gameID, playerColor);
             return String.format("Successfully joined game %s as the %s color.", params[1], params[0]);
         }
         throw new ResponseException(400, "Expected: <team-color ('WHITE'/'BLACK')> <game-id>");
     }
     public String joinObserver(String... params) throws ResponseException {
         if (params.length == 1) {
-            server.joinGame(new JoinGameRequest(null, parseInt(params[0])), auth);
+            server.joinGame(new JoinGameRequest(parseInt(params[0]), null), auth);
             return String.format("Successfully joined game %s as an observer.", params[0]);
         }
         throw new ResponseException(400, "Expected: <game-id>");
@@ -138,5 +140,9 @@ public class ChessClient {
     public String print() {
         ChessGamePrinter.printGame(game);
         return "printed\n";
+    }
+
+    private ChessGame.TeamColor getTeamColor(String userInputColor) {
+        return userInputColor.equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
     }
 }

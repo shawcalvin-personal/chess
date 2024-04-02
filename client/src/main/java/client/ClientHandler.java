@@ -1,7 +1,7 @@
 package client;
 
 import client.webSocket.NotificationHandler;
-import ui.EscapeSequences;
+import ui.*;
 import webSocketMessages.serverMessages.ServerMessage;
 
 import java.util.Scanner;
@@ -31,12 +31,14 @@ public class ClientHandler implements NotificationHandler {
     }
 
     public void notify(ServerMessage message) {
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + message.getServerMessageType());
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + message.getMessage());
+        if (message.getServerMessageType().equals(ServerMessage.ServerMessageType.LOAD_GAME)) {
+            ChessGamePrinter.printGame(message.getGame());
+        }
         printPrompt();
     }
 
     private void printPrompt() {
         System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_GREEN + ">>>  ");
-
     }
 }

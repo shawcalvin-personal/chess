@@ -4,6 +4,7 @@ import model.responseModels.FailureType;
 import model.responseModels.ServiceResponse;
 import org.junit.jupiter.api.*;
 import model.responseModels.*;
+import service.ChessService;
 import service.ClearService;
 import service.LoginService;
 import service.RegisterService;
@@ -14,9 +15,7 @@ class LoginServiceTests {
     private static String existingUsername;
     private static String existingPassword;
     private static String existingEmail;
-    private static RegisterService registerService;
-    private static LoginService loginService;
-    private static ClearService clearService;
+    private static ChessService service;
 
     @BeforeAll
     public static void init() {
@@ -27,21 +26,19 @@ class LoginServiceTests {
         existingPassword = "existing-password";
         existingEmail = "existing-email";
 
-        registerService = new RegisterService();
-        loginService = new LoginService();
-        clearService = new ClearService();
+        service = new ChessService();
     }
 
 
     @BeforeEach
     public void setup() {
-        clearService.clearDatabase();
-        registerService.register(existingUsername, existingPassword, existingEmail);
+        service.clearDatabase();
+        service.register(existingUsername, existingPassword, existingEmail);
     }
 
     @Test
     void loginValidUser() {
-        ServiceResponse response = loginService.login(existingUsername, existingPassword);
+        ServiceResponse response = service.login(existingUsername, existingPassword);
         Assertions.assertEquals(LoginResponse.class, response.getClass());
 
         LoginResponse loginResponse = (LoginResponse) response;
@@ -50,7 +47,7 @@ class LoginServiceTests {
 
     @Test
     void loginInvalidUser() {
-        ServiceResponse response = loginService.login(newUsername, newPassword);
+        ServiceResponse response = service.login(newUsername, newPassword);
         Assertions.assertEquals(FailureResponse.class, response.getClass());
 
         FailureResponse failureResponse = (FailureResponse) response;

@@ -10,14 +10,22 @@ import java.util.List;
 import java.util.UUID;
 
 public class SQLAuthDAO implements AuthDAO {
-    public SQLAuthDAO() {
+    private static SQLAuthDAO instance;
+    private SQLAuthDAO() {
         try {
             DatabaseManager.configureDatabase();
         } catch (DataAccessException e) {
             System.out.println("Unable to initialize database: " + e.getMessage());
         }
-
     }
+
+    public static SQLAuthDAO getInstance() {
+        if (instance == null) {
+            instance = new SQLAuthDAO();
+        }
+        return instance;
+    }
+
     @Override
     public AuthData create(String username, String password) throws DataAccessException {
         String authToken = UUID.randomUUID().toString();

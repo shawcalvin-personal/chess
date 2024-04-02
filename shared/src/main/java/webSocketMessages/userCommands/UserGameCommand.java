@@ -1,6 +1,7 @@
 package webSocketMessages.userCommands;
 
 import chess.ChessGame;
+import chess.ChessMove;
 
 import java.util.Objects;
 
@@ -12,10 +13,6 @@ import java.util.Objects;
  */
 public class UserGameCommand {
 
-    public UserGameCommand(String authToken) {
-        this.authToken = authToken;
-    }
-
     public enum CommandType {
         JOIN_PLAYER,
         JOIN_OBSERVER,
@@ -25,21 +22,53 @@ public class UserGameCommand {
     }
 
     protected CommandType commandType;
-
     private final String authToken;
+    private String username;
     private int gameID;
     private ChessGame.TeamColor playerColor;
+    private ChessMove move;
 
-    public String getAuthString() {
-        return authToken;
+    public UserGameCommand(String authToken) {
+        this.authToken = authToken;
     }
 
-    public CommandType getCommandType() {
-        return this.commandType;
-    }
+    public CommandType getCommandType() { return commandType; }
+    public String getAuthString() { return authToken; }
+    public String getUsername() { return username; }
     public int getGameID() { return gameID; }
-
     public ChessGame.TeamColor getPlayerColor() { return playerColor; }
+    public ChessMove getMove() { return move; }
+
+    public static class Builder {
+        private UserGameCommand command;
+
+        public Builder(String authToken) {
+            command = new UserGameCommand(authToken);
+        }
+        public Builder commandType(CommandType commandType) {
+            command.commandType = commandType;
+            return this;
+        }
+        public Builder username(String username) {
+            command.username = username;
+            return this;
+        }
+        public Builder gameID(int gameID) {
+            command.gameID = gameID;
+            return this;
+        }
+        public Builder playerColor(ChessGame.TeamColor playerColor) {
+            command.playerColor = playerColor;
+            return this;
+        }
+        public Builder move(ChessMove move) {
+            command.move = move;
+            return this;
+        }
+        public UserGameCommand build() {
+            return command;
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -56,3 +85,5 @@ public class UserGameCommand {
         return Objects.hash(getCommandType(), getAuthString());
     }
 }
+
+

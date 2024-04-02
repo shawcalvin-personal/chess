@@ -3,6 +3,7 @@ package service;
 import dataAccess.*;
 import dataAccess.MemoryDataAccess.*;
 import dataAccess.SQLDataAccess.SQLAuthDAO;
+import dataAccess.SQLDataAccess.SQLGameDAO;
 import dataAccess.SQLDataAccess.SQLUserDAO;
 import model.chessModels.AuthData;
 import model.chessModels.UserData;
@@ -18,12 +19,9 @@ public class Service {
     public static final String blackColor = "BLACK";
 
     Service() {
-        init();
-    }
-    public void init() {
-        userDAO = new SQLUserDAO();
-        gameDAO = new MemoryGameDAO();
-        authDAO = new SQLAuthDAO();
+        userDAO = SQLUserDAO.getInstance();
+        gameDAO = SQLGameDAO.getInstance();
+        authDAO = SQLAuthDAO.getInstance();
     }
 
     public boolean isValidAuthToken(String authToken) throws DataAccessException {

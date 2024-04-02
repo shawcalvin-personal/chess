@@ -14,10 +14,7 @@ class JoinGameServiceTests {
     private static String existingPassword;
     private static String existingEmail;
     private static String existingAuthToken;
-    private static RegisterService registerService;
-    private static CreateGameService createGameService;
-    private static JoinGameService joinGameService;
-    private static ClearService clearService;
+    private static ChessService service;
     private static String existingGameName;
     private static int existingGameID;
     private static String whiteColor;
@@ -38,45 +35,42 @@ class JoinGameServiceTests {
         whiteColor = "WHITE";
         blackColor = "BLACK";
 
-        registerService = new RegisterService();
-        createGameService = new CreateGameService();
-        joinGameService = new JoinGameService();
-        clearService = new ClearService();
+        service = new ChessService();
     }
 
 
     @BeforeEach
     public void setup() {
-        clearService.clearDatabase();
-        RegisterResponse registerResponse = (RegisterResponse) registerService.register(existingUsername, existingPassword, existingEmail);
+        service.clearDatabase();
+        RegisterResponse registerResponse = (RegisterResponse) service.register(existingUsername, existingPassword, existingEmail);
         existingAuthToken = registerResponse.authToken();
 
-        CreateGameResponse createGameResponse = (CreateGameResponse) createGameService.createGame(existingAuthToken, existingGameName);
+        CreateGameResponse createGameResponse = (CreateGameResponse) service.createGame(existingAuthToken, existingGameName);
         existingGameID = createGameResponse.gameID();
     }
 
     @Test
     void joinGameValid() {
-        RegisterResponse registerResponse = (RegisterResponse) registerService.register(newUsername, newPassword, newEmail);
+        RegisterResponse registerResponse = (RegisterResponse) service.register(newUsername, newPassword, newEmail);
         String newAuthToken = registerResponse.authToken();
 
-        ServiceResponse response1 = joinGameService.joinGame(existingAuthToken, whiteColor, existingGameID);
+        ServiceResponse response1 = service.joinGame(existingAuthToken, whiteColor, existingGameID);
         Assertions.assertEquals(JoinGameResponse.class, response1.getClass());
 
-        ServiceResponse response2 = joinGameService.joinGame(newAuthToken, blackColor, existingGameID);
+        ServiceResponse response2 = service.joinGame(newAuthToken, blackColor, existingGameID);
         Assertions.assertEquals(JoinGameResponse.class, response2.getClass());
     }
 
     @Test
     void joinGameBadAuth() {
-        registerService.register(newUsername, newPassword, newEmail);
+        service.register(newUsername, newPassword, newEmail);
 
-        ServiceResponse response1 = joinGameService.joinGame("invalid-auth-token", whiteColor, existingGameID);
+        ServiceResponse response1 = service.joinGame("invalid-auth-token", whiteColor, existingGameID);
         Assertions.assertEquals(FailureResponse.class, response1.getClass());
         FailureResponse failureResponse1 = (FailureResponse) response1;
         Assertions.assertEquals(FailureType.UNAUTHORIZED_ACCESS, failureResponse1.failureType());
 
-        ServiceResponse response2 = joinGameService.joinGame("invalid-auth-token", blackColor, existingGameID);
+        ServiceResponse response2 = service.joinGame("invalid-auth-token", blackColor, existingGameID);
         Assertions.assertEquals(FailureResponse.class, response2.getClass());
         FailureResponse failureResponse2 = (FailureResponse) response2;
         Assertions.assertEquals(FailureType.UNAUTHORIZED_ACCESS, failureResponse2.failureType());
@@ -84,13 +78,13 @@ class JoinGameServiceTests {
 
     @Test
     void joinGameInvalidColor() {
-        RegisterResponse registerResponse = (RegisterResponse) registerService.register(newUsername, newPassword, newEmail);
+        RegisterResponse registerResponse = (RegisterResponse) service.register(newUsername, newPassword, newEmail);
         String newAuthToken = registerResponse.authToken();
 
-        ServiceResponse response1 = joinGameService.joinGame(existingAuthToken, whiteColor, existingGameID);
+        ServiceResponse response1 = service.joinGame(existingAuthToken, whiteColor, existingGameID);
         Assertions.assertEquals(JoinGameResponse.class, response1.getClass());
 
-        ServiceResponse response2 = joinGameService.joinGame(newAuthToken, whiteColor, existingGameID);
+        ServiceResponse response2 = service.joinGame(newAuthToken, whiteColor, existingGameID);
         Assertions.assertEquals(FailureResponse.class, response2.getClass());
         FailureResponse failureResponse = (FailureResponse) response2;
         Assertions.assertEquals(FailureType.FORBIDDEN_RESOURCE, failureResponse.failureType());

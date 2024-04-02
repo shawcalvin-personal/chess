@@ -5,6 +5,7 @@ import chess.ChessMove;
 import client.ResponseException;
 import com.google.gson.Gson;
 import webSocketMessages.serverMessages.ServerMessage;
+import model.chessModels.AuthData;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import javax.websocket.*;
@@ -27,7 +28,6 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    System.out.println("Received a message!!");
                     ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
                     notificationHandler.notify(notification);
                 }
@@ -36,19 +36,30 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-    public void joinPlayer(String username, String authToken, int gameID, ChessGame.TeamColor playerColor) throws ResponseException {
+    public void joinPlayer(AuthData auth, int gameID, ChessGame.TeamColor playerColor) throws ResponseException {
+        try {
+            UserGameCommand userGameCommand = new UserGameCommand.Builder(auth.authToken())
+                .commandType(UserGameCommand.CommandType.JOIN_PLAYER)
+                .username(auth.username())
+                .gameID(gameID)
+                .playerColor(playerColor)
+                .build();
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
-    public void joinObserver(String username, String authToken, int gameID) throws ResponseException {
+    public void joinObserver(AuthData auth, int gameID) throws ResponseException {
     }
 
-    public void makeMove(String username, String authToken, int gameID, ChessMove move) throws ResponseException {
+    public void makeMove(AuthData auth, int gameID, ChessMove move) throws ResponseException {
     }
 
-    public void resign(String username, String authToken, int gameID) throws ResponseException {
+    public void resign(AuthData auth, int gameID) throws ResponseException {
     }
 
-    public void leave(String username, String authToken, int gameID) throws ResponseException {
+    public void leave(AuthData auth, int gameID) throws ResponseException {
     }
 
     @Override

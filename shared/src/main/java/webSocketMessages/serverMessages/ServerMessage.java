@@ -1,5 +1,8 @@
 package webSocketMessages.serverMessages;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
+
 import java.util.Objects;
 
 /**
@@ -10,7 +13,8 @@ import java.util.Objects;
  */
 public class ServerMessage {
     ServerMessageType serverMessageType;
-    public String notificationMessage;
+    public String message;
+    public ChessGame game;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -25,8 +29,28 @@ public class ServerMessage {
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
     }
+    public String getMessage() { return message; }
+    public ChessGame getGame() { return game; }
 
-    public String getNotificationMessage() { return notificationMessage; }
+    public static class Builder {
+        private ServerMessage serverMessage;
+
+        public Builder(ServerMessageType type) {
+            serverMessage = new ServerMessage(type);
+        }
+        public Builder message(String message) {
+            serverMessage.message = message;
+            return this;
+        }
+        public Builder game(ChessGame game) {
+            serverMessage.game = game;
+            return this;
+        }
+        public ServerMessage build() {
+            // Here you could validate the ServerMessage object before returning it
+            return serverMessage;
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -41,5 +65,10 @@ public class ServerMessage {
     @Override
     public int hashCode() {
         return Objects.hash(getServerMessageType());
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }

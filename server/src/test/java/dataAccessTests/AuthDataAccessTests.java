@@ -16,8 +16,8 @@ public class AuthDataAccessTests {
     static UserData existingUser;
     @BeforeAll
     public static void init() {
-        userDAO = new SQLUserDAO();
-        authDAO = new SQLAuthDAO();
+        userDAO = SQLUserDAO.getInstance();
+        authDAO = SQLAuthDAO.getInstance();
         newUser = new UserData("new-username", "new-password", "new-email");
         existingUser = new UserData("existing-username", "existing-password", "existing-email");
     }
