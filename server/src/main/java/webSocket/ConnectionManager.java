@@ -16,8 +16,8 @@ public class ConnectionManager {
         connections.put(authToken, connection);
     }
 
-    public void remove(String userName) {
-        connections.remove(userName);
+    public void remove(String authToken) {
+        connections.remove(authToken);
     }
 
     public void broadcast(String excludeAuthToken, ServerMessage notification) throws IOException {

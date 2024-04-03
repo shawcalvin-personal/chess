@@ -3,7 +3,6 @@ package service;
 import chess.ChessGame;
 import chess.ChessMove;
 import model.responseModels.ServiceResponse;
-import org.eclipse.jetty.server.Authentication;
 import webSocket.InvalidUserCommandException;
 import webSocketMessages.userCommands.UserGameCommand;
 

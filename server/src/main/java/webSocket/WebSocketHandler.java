@@ -82,6 +82,7 @@ public class WebSocketHandler {
                     .gameID(request.getGameID())
                     .build();
             connectionManager.broadcast(request.getAuthString(), notificationMessage);
+            connectionManager.remove(request.getAuthString());
         } catch (InvalidUserCommandException e) {
             System.out.println(e.getMessage());
             sendErrorNotification(request.getAuthString(), request.getGameID(), e.getMessage());
@@ -96,6 +97,7 @@ public class WebSocketHandler {
                     .gameID(request.getGameID())
                     .build();
             connectionManager.broadcast(null, notificationMessage);
+            connectionManager.remove(request.getAuthString());
         } catch (InvalidUserCommandException e) {
             System.out.println(e.getMessage());
             sendErrorNotification(request.getAuthString(), request.getGameID(), e.getMessage());

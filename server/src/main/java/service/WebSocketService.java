@@ -44,7 +44,6 @@ public class WebSocketService extends Service{
 
     public void leave(int gameID, String authToken) throws InvalidUserCommandException {
         try {
-            System.out.println("leaving");
             String username = getUsername(authToken);
             if (username == null) {
                 throw new InvalidUserCommandException("Error trying to leave game: username not found!");
