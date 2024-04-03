@@ -2,6 +2,7 @@ package webSocket;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import model.chessModels.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -25,7 +26,7 @@ public class WebSocketHandler {
         try {
             service.validateUserGameCommand(request);
             switch (request.getCommandType()) {
-                case JOIN_PLAYER -> joinGame(request, session, String.format("%s joined the game.", request.getUsername()));
+                case JOIN_PLAYER -> joinGame(request, session, String.format("%s joined the game as the %s player.", request.getUsername(), request.getPlayerColor().toString().toLowerCase()));
                 case JOIN_OBSERVER -> joinGame(request, session, String.format("%s joined the game as an observer.", request.getUsername()));
                 case MAKE_MOVE -> makeMove(request, session);
                 case LEAVE -> leave(request, session);
@@ -57,13 +58,13 @@ public class WebSocketHandler {
 
     private void makeMove(UserGameCommand request, Session session) throws IOException {
         try {
-            ChessGame game = service.makeMove(request.getGameID(), request.getMove());
+            GameData gameData = service.makeMove(request.getGameID(), request.getMove());
             ServerMessage loadGameMessage = new ServerMessage.Builder(ServerMessage.ServerMessageType.LOAD_GAME)
-                    .game(game)
+                    .game(gameData.game())
                     .gameID(request.getGameID())
                     .build();
             ServerMessage notificationMessage = new ServerMessage.Builder(ServerMessage.ServerMessageType.NOTIFICATION)
-                    .message(String.format("%s made a move: %s", request.getUsername(), request.getMove().toString()))
+                    .message(getMakeMoveMessage(request, gameData))
                     .gameID(request.getGameID())
                     .build();
             connectionManager.broadcast(null, loadGameMessage);
@@ -102,6 +103,21 @@ public class WebSocketHandler {
             System.out.println(e.getMessage());
             sendErrorNotification(request.getAuthString(), request.getGameID(), e.getMessage());
         }
+    }
+
+    private String getMakeMoveMessage(UserGameCommand request, GameData gameData) {
+        ChessGame game = gameData.game();
+        String message = String.format("%s made a move: %s", request.getUsername(), request.getMove().toString());
+        if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            message += String.format("\n%s is now in check! %s has won the game!", gameData.whiteUsername(), gameData.blackUsername());
+        } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            message += String.format("\n%s is in checkmate! %s has won the game!", gameData.blackUsername(), gameData.whiteUsername());
+        } else if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
+            message += String.format("\n%s is now in check!", gameData.whiteUsername());
+        } else if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
+            message += String.format("\n%s is now in check!", gameData.blackUsername());
+        }
+        return message;
     }
 
     private void sendErrorNotification(String authToken, int gameID, String message) throws IOException {

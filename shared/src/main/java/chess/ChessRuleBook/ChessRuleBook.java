@@ -22,18 +22,22 @@ public class ChessRuleBook {
     }
 
     public Collection<ChessMove> validMoves(ChessBoard board, ChessPosition position) {
-        Collection<ChessMove> validMovesIgnoringCheck = validMovesIgnoringCheck(board, position);
-        Collection<ChessMove> validMoves = new HashSet<>();
-        ChessPiece piece = board.getPiece(position);
-        ChessGame.TeamColor teamTurn = piece == null ? null : piece.getTeamColor();
-        for (var move : validMovesIgnoringCheck) {
-            board.movePiece(move);
-            if (!isInCheck(board, teamTurn)) {
-                validMoves.add(move);
+        try {
+            Collection<ChessMove> validMovesIgnoringCheck = validMovesIgnoringCheck(board, position);
+            Collection<ChessMove> validMoves = new HashSet<>();
+            ChessPiece piece = board.getPiece(position);
+            ChessGame.TeamColor teamTurn = piece == null ? null : piece.getTeamColor();
+            for (var move : validMovesIgnoringCheck) {
+                board.movePiece(move);
+                if (!isInCheck(board, teamTurn)) {
+                    validMoves.add(move);
+                }
+                board.undoLastMove();
             }
-            board.undoLastMove();
+            return validMoves;
+        } catch (Exception e) {
+            return new HashSet<>();
         }
-        return validMoves;
     }
 
     private Collection<ChessMove> validMovesIgnoringCheck(ChessBoard board, ChessPosition position) {

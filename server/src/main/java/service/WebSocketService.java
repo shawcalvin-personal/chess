@@ -9,13 +9,13 @@ import webSocket.InvalidUserCommandException;
 import webSocketMessages.userCommands.UserGameCommand;
 
 public class WebSocketService extends Service{
-    public ChessGame makeMove(int gameID, ChessMove move) throws InvalidUserCommandException {
+    public GameData makeMove(int gameID, ChessMove move) throws InvalidUserCommandException {
         try {
             GameData gameData = gameDAO.get(gameID);
             ChessGame game = gameData.game();
             game.makeMove(move);
             gameDAO.update(gameID, gameData);
-            return game;
+            return gameData;
         } catch (DataAccessException e) {
             throw new InvalidUserCommandException("Error trying to make move: unable to retrieve game from database!");
         } catch (InvalidMoveException e) {
@@ -80,19 +80,19 @@ public class WebSocketService extends Service{
     public void validateUserGameCommand(UserGameCommand command) throws InvalidUserCommandException {
         String authToken = command.getAuthString();
         if (authToken != null && !isValidAuth(authToken)) {
-            throw new InvalidUserCommandException("Error parsing user command: invalid auth token!");
+            throw new InvalidUserCommandException("Error executing user command: invalid auth token!");
         }
         Integer gameID = command.getGameID();
         if (gameID != null && !isValidGameID(gameID)) {
-            throw new InvalidUserCommandException("Error parsing user command: invalid game ID!");
+            throw new InvalidUserCommandException("Error executing user command: invalid game ID!");
         }
         ChessGame.TeamColor playerColor = getPlayerColor(command);
         if (playerColor != null && gameID != null && !isValidPlayerColor(gameID, playerColor, authToken)) {
-            throw new InvalidUserCommandException("Error parsing user command: invalid player color!");
+            throw new InvalidUserCommandException("Error executing user command: invalid player color!");
         }
         ChessMove move = command.getMove();
-        if (move != null && gameID != null && !isValidChessMove(gameID, playerColor, move)) {
-            throw new InvalidUserCommandException("Error parsing user command: invalid chess move!");
+        if (move != null && gameID != null) {
+            validateChessMove(gameID, playerColor, move);
         }
     }
 
@@ -132,16 +132,21 @@ public class WebSocketService extends Service{
             return false;
         }
     }
-    private boolean isValidChessMove(int gameID, ChessGame.TeamColor playerColor, ChessMove move) {
+    private void validateChessMove(int gameID, ChessGame.TeamColor playerColor, ChessMove move) throws InvalidUserCommandException {
         try {
             GameData game = gameDAO.get(gameID);
-            return playerColor != null && !game.game().getIsComplete() && game.game().validMoves(move.getStartPosition()).contains(move) && game.game().getBoard().getPiece(move.getStartPosition()).getTeamColor().equals(playerColor);
+            if (playerColor == null) {
+                throw new InvalidUserCommandException("Error executing user command: user is not a valid player!");
+            } if (game.game().getIsComplete()) {
+                throw new InvalidUserCommandException("Error executing user command: game is already over!");
+            } if (!game.game().validMoves(move.getStartPosition()).contains(move)) {
+                throw new InvalidUserCommandException("Error executing user command: invalid move!");
+            } if (!game.game().getTeamTurn().equals(playerColor)) {
+                throw new InvalidUserCommandException("Error executing user command: it's not your turn!");
+            }
         } catch (DataAccessException e) {
             System.out.println("Unable to retrieve game data from database!");
-            return false;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return false;
+            throw new InvalidUserCommandException("Error executing user command: game does not exist!");
         }
     }
 
@@ -183,7 +188,7 @@ public class WebSocketService extends Service{
         try {
             return gameDAO.get(gameID).game();
         } catch (DataAccessException e) {
-            throw new InvalidUserCommandException("Error trying to make move: unable to retrieve game from database!");
+            throw new InvalidUserCommandException("Error executing user command: unable to retrieve game from database!");
         }
     }
 }

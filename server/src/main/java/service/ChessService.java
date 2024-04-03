@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import model.chessModels.GameData;
 import model.responseModels.ServiceResponse;
 import webSocket.InvalidUserCommandException;
 import webSocketMessages.userCommands.UserGameCommand;
@@ -43,7 +44,7 @@ public class ChessService {
     }
     public void validateUserGameCommand(UserGameCommand command) throws InvalidUserCommandException { websocketService.validateUserGameCommand(command); }
     public ChessGame getGame(int gameID) throws InvalidUserCommandException { return websocketService.getGame(gameID); }
-    public ChessGame makeMove(int gameID, ChessMove move) throws InvalidUserCommandException { return websocketService.makeMove(gameID, move); }
+    public GameData makeMove(int gameID, ChessMove move) throws InvalidUserCommandException { return websocketService.makeMove(gameID, move); }
     public void resign(int gameID, String authToken) throws InvalidUserCommandException { websocketService.resign(gameID, authToken); }
     public void leave(int gameID, String authToken) throws InvalidUserCommandException { websocketService.leave(gameID, authToken); }
 }

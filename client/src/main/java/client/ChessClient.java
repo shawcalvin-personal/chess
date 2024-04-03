@@ -4,14 +4,12 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import client.webSocket.NotificationHandler;
 import client.webSocket.WebSocketFacade;
 import model.chessModels.AuthData;
 import model.requestModels.*;
 import model.responseModels.*;
 import model.requestModels.LoginRequest;
 import model.requestModels.RegisterRequest;
-import ui.ChessGamePrinter;
 
 
 import java.util.ArrayList;
@@ -24,13 +22,14 @@ public class ChessClient {
 
     private final ServerFacade server;
     private WebSocketFacade ws;
-    private State userState = State.SIGNEDOUT;
+    private State userState = State.SIGNED_OUT;
     private AuthData auth;
     int gameID;
     private final String serverUrl;
-    private final NotificationHandler notificationHandler;
+    private final ClientNotificationHandler notificationHandler;
+    private final String EMPTY = "";
 
-    public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
+    public ChessClient(String serverUrl, ClientNotificationHandler notificationHandler) {
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
         server = new ServerFacade(serverUrl);
@@ -43,16 +42,23 @@ public class ChessClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "help" -> help();
-                case "login" -> login(params);
                 case "register" -> register(params);
+                case "login" -> login(params);
                 case "logout" -> logout();
+
                 case "create-game" -> createGame(params);
                 case "list-games" -> listGames();
                 case "join-player" -> joinPlayer(params);
                 case "join-observer" -> joinObserver(params);
-                case "make-move" -> makeMove(params);
-                case "clear" -> clear();
                 case "quit" -> quit();
+
+                case "make-move" -> makeMove(params);
+                case "leave" -> leave();
+                case "resign" -> resign();
+                case "redraw" -> redraw();
+                case "show-moves" -> highlightValidMoves(params);
+
+                case "clear" -> clear();
                 default -> "Unrecognized command. Type 'help' for a list of available commands.";
             };
         } catch (Exception e) {
@@ -61,15 +67,16 @@ public class ChessClient {
     }
 
     public String help() {
-        if (userState == State.SIGNEDOUT) {
-            return """
-                    Available commands:
-                    - login <username> <password>
-                    - register <username> <password> <email>
-                    - quit
-                    """;
-        }
-        return """
+        return switch (userState) {
+            case SIGNED_OUT ->
+                """
+                Available commands:
+                - login <username> <password>
+                - register <username> <password> <email>
+                - quit
+                """;
+            case SIGNED_IN ->
+                """
                 Available commands:
                 - logout
                 - create-game <game-name>
@@ -77,12 +84,30 @@ public class ChessClient {
                 - join-player <player-color> <game-id>
                 - join-observer <game-id>
                 """;
+            case IN_GAME_PLAYER ->
+                """
+                Available commands:
+                - make-move <start-position> <end-position>
+                    [ex: make-move a3 a5]
+                - leave
+                - resign
+                - redraw
+                - show-moves
+                """;
+            case IN_GAME_OBSERVER ->
+                """
+                Available commands:
+                - leave
+                - redraw
+                - show-moves
+                """;
+        };
     }
 
     public String login(String... params) throws ResponseException {
         if (params.length == 2) {
             LoginResponse res = server.login(new LoginRequest(params[0], params[1]));
-            userState = State.SIGNEDIN;
+            userState = State.SIGNED_IN;
             auth = new AuthData(res.username(), res.authToken());
             return String.format("You are signed in as %s.", res.username());
         }
@@ -94,14 +119,14 @@ public class ChessClient {
         }
 
         RegisterResponse res = server.register(new RegisterRequest(params[0], params[1], params[2]));
-        userState = State.SIGNEDIN;
+        userState = State.SIGNED_IN;
         auth = new AuthData(res.username(), res.authToken());
         return String.format("Successfully registered user %s. You are now logged in.", res.username());
     }
 
     public String logout() throws ResponseException {
         server.logout(auth);
-        this.userState = State.SIGNEDOUT;
+        this.userState = State.SIGNED_OUT;
         auth = null;
         return "Successfully signed out.";
     }
@@ -123,7 +148,7 @@ public class ChessClient {
         if (params.length != 2) {
             throw new ResponseException(400, "Expected: <team-color ('WHITE'/'BLACK')> <game-id>");
         }
-
+        this.userState = State.IN_GAME_PLAYER;
         ChessGame.TeamColor playerColor = getTeamColor(params[0]);
         int gameID = parseInt(params[1]);
         this.gameID = gameID;
@@ -131,20 +156,20 @@ public class ChessClient {
         ws = new WebSocketFacade(serverUrl, notificationHandler);
         ws.joinPlayer(auth, gameID, playerColor);
         notificationHandler.setPlayerColor(playerColor);
-        return String.format("Successfully joined game %s as the %s color.", params[1], params[0]);
+        return EMPTY;
 
     }
     public String joinObserver(String... params) throws ResponseException {
         if (params.length != 1) {
             throw new ResponseException(400, "Expected: <game-id>");
         }
-
+        this.userState = State.IN_GAME_OBSERVER;
         int gameID = parseInt(params[0]);
         this.gameID = gameID;
         server.joinGame(new JoinGameRequest(gameID, null), auth);
         ws = new WebSocketFacade(serverUrl, notificationHandler);
         ws.joinObserver(auth, gameID);
-        return String.format("Successfully joined game %s as an observer.", gameID);
+        return EMPTY;
     }
 
     public String quit() throws ResponseException {
@@ -154,7 +179,33 @@ public class ChessClient {
     public String makeMove(String... params) throws ResponseException {
         ChessMove move = getChessMove(params);
         ws.makeMove(auth, gameID, move);
-        return String.format("Successfully made move: " + move.toString());
+        return EMPTY;
+    }
+
+    public String leave() throws ResponseException {
+        this.userState = State.SIGNED_IN;
+        ws.leave(auth, gameID);
+        return EMPTY;
+    }
+
+    public String resign() throws ResponseException {
+        this.userState = State.SIGNED_IN;
+        ws.resign(auth, gameID);
+        return EMPTY;
+    }
+
+    public String redraw() throws ResponseException {
+        notificationHandler.printBoard(null);
+        return EMPTY;
+    }
+
+    public String highlightValidMoves(String... params) throws ResponseException {
+        if (params.length != 1 || !isValidRankFileNotation(params[0])) {
+            System.out.println(params.length);
+            throw new ResponseException(400, "Expected: <chess-position>\n  ex: [a4]");
+        }
+        notificationHandler.printBoard(getChessPosition(params[0]));
+        return EMPTY;
     }
 
     public String clear() throws ResponseException {
@@ -173,13 +224,24 @@ public class ChessClient {
 
         for (int i = 0; i < 2; i++) {
             String param = params[i];
-            if (param.length() != 2 || !Character.isLetter(param.charAt(0)) || !Character.isDigit(param.charAt(1))) {
+            if (param.length() != 2 || !isValidRankFileNotation(param)) {
                 return false;
             }
         }
 
         ArrayList<String> validPromotionPieces = new ArrayList<>(List.of("queen", "rook", "bishop", "knight"));
         return params.length != 3 || validPromotionPieces.contains(params[2].toLowerCase());
+    }
+
+    private boolean isValidRankFileNotation(String rankFileNotation) {
+        if (rankFileNotation == null || rankFileNotation.length() != 2) {
+            return false;
+        }
+
+        char char0 = rankFileNotation.charAt(0);
+        char char1 = rankFileNotation.charAt(1);
+
+        return char0 >= 'a' && char0 <= 'h' && char1 >= '1' && char1 <= '8';
     }
 
     private ChessPosition getChessPosition(String rankFileNotation) {
