@@ -3,6 +3,9 @@ package service;
 import chess.ChessGame;
 import chess.ChessMove;
 import model.responseModels.ServiceResponse;
+import org.eclipse.jetty.server.Authentication;
+import webSocket.InvalidUserCommandException;
+import webSocketMessages.userCommands.UserGameCommand;
 
 public class ChessService {
     ClearService clearService;
@@ -12,7 +15,7 @@ public class ChessService {
     ListGamesService listGamesService;
     CreateGameService createGameService;
     JoinGameService joinGameService;
-    ValidateService validateService;
+    WebSocketService websocketService;
 
     public ChessService() {
         this.clearService = new ClearService();
@@ -22,7 +25,7 @@ public class ChessService {
         this.listGamesService = new ListGamesService();
         this.createGameService = new CreateGameService();
         this.joinGameService = new JoinGameService();
-        this.validateService = new ValidateService();
+        this.websocketService = new WebSocketService();
     }
     public ServiceResponse register(String username, String password, String email) { return registerService.register(username, password, email); }
     public ServiceResponse login(String username, String password) {
@@ -39,8 +42,9 @@ public class ChessService {
     public ServiceResponse clearDatabase() {
         return clearService.clearDatabase();
     }
-    public boolean isValidAuth(String authToken) { return validateService.isValidAuth(authToken); }
-    public boolean isValidGameID(int gameID) { return validateService.isValidGameID(gameID); }
-    public boolean isValidPlayerColor(int gameID, ChessGame.TeamColor playerColor, String authToken) { return validateService.isValidPlayerColor(gameID, playerColor, authToken); }
-    public boolean isValidChessMove(int gameID, ChessMove move) { return validateService.isValidChessMove(gameID, move); }
+    public void validateUserGameCommand(UserGameCommand command) throws InvalidUserCommandException { websocketService.validateUserGameCommand(command); }
+    public ChessGame getGame(int gameID) throws InvalidUserCommandException { return websocketService.getGame(gameID); }
+    public ChessGame makeMove(int gameID, ChessMove move) throws InvalidUserCommandException { return websocketService.makeMove(gameID, move); }
+    public void resign(int gameID, String authToken) throws InvalidUserCommandException { websocketService.resign(gameID, authToken); }
+    public void leave(int gameID, String authToken) throws InvalidUserCommandException { websocketService.leave(gameID, authToken); }
 }

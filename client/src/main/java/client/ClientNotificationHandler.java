@@ -1,16 +1,26 @@
 package client;
 
+import chess.ChessGame;
 import client.webSocket.NotificationHandler;
 import ui.*;
 import webSocketMessages.serverMessages.ServerMessage;
 
 import java.util.Scanner;
 
-public class ClientHandler implements NotificationHandler {
+public class ClientNotificationHandler implements NotificationHandler {
     private final ChessClient client;
+    private ChessGame.TeamColor playerColor;
 
-    public ClientHandler(String serverUrl) {
+    public ClientNotificationHandler(String serverUrl) {
         client = new ChessClient(serverUrl, this);
+    }
+
+    public ChessGame.TeamColor getPlayerColor() {
+        return playerColor;
+    }
+
+    public void setPlayerColor(ChessGame.TeamColor playerColor) {
+        this.playerColor = playerColor;
     }
 
     public void run() {
@@ -31,9 +41,16 @@ public class ClientHandler implements NotificationHandler {
     }
 
     public void notify(ServerMessage message) {
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + message.getMessage());
         if (message.getServerMessageType().equals(ServerMessage.ServerMessageType.LOAD_GAME)) {
-            ChessGamePrinter.printGame(message.getGame());
+            if (playerColor.equals(ChessGame.TeamColor.BLACK)) {
+                ChessGamePrinter.printBlackBoard(message.getGame().getBoard());
+            } else {
+                ChessGamePrinter.printWhiteBoard(message.getGame().getBoard());
+            }
+        } else if (message.getServerMessageType().equals(ServerMessage.ServerMessageType.NOTIFICATION)) {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + message.getMessage());
+        } else {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + message.getErrorMessage());
         }
         printPrompt();
     }

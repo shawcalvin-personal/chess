@@ -14,17 +14,12 @@ public class ChessGamePrinter {
     private static final String EMPTY = EscapeSequences.EMPTY;
     private static final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
-    public static void printGame(ChessGame game) {
-        printWhiteBoard(game.getBoard());
-        out.println();
-        printBlackBoard(game.getBoard());
-    }
-
     public static void printBlackBoard(ChessBoard board) {
+        out.println();
         printBlackRowBorder();
         for (int row = 1; row <= BOARD_SIZE_IN_SQUARES; row++) {
             for (int squareIteration = 1; squareIteration <= SQUARE_SIZE_IN_CHARS; squareIteration++) {
-                for (int col = 0; col <= BOARD_SIZE_IN_SQUARES; col++) {
+                for (int col = BOARD_SIZE_IN_SQUARES + 1; col >= 1; col--) {
                     printSquare(row, col, board, squareIteration);
                 }
                 out.print(EscapeSequences.RESET_BG_COLOR);
@@ -34,10 +29,11 @@ public class ChessGamePrinter {
     }
 
     public static void printWhiteBoard(ChessBoard board) {
+        out.println();
         printWhiteRowBorder();
         for (int row = BOARD_SIZE_IN_SQUARES; row >= 1; row--) {
             for (int squareIteration = 1; squareIteration <= SQUARE_SIZE_IN_CHARS; squareIteration++) {
-                for (int col = BOARD_SIZE_IN_SQUARES + 1; col >= 1; col--) {
+                for (int col = 0; col <= BOARD_SIZE_IN_SQUARES; col++) {
                     printSquare(row, col, board, squareIteration);
                 }
                 out.print(EscapeSequences.RESET_BG_COLOR);
@@ -100,9 +96,9 @@ public class ChessGamePrinter {
             setLightColor();
         }
         if (piece != null && teamColor.equals(ChessGame.TeamColor.WHITE)) {
-            out.print(EscapeSequences.SET_TEXT_COLOR_BLUE);
+            out.print(EscapeSequences.SET_LIGHT_PIECE_COLOR);
         } else {
-            out.print(EscapeSequences.SET_TEXT_COLOR_RED);
+            out.print(EscapeSequences.SET_DARK_PIECE_COLOR);
         }
 
         out.print(EMPTY.repeat(prefixLength));
@@ -115,20 +111,20 @@ public class ChessGamePrinter {
             return EMPTY;
         }
         return switch (piece.getPieceType()) {
-            case KING -> EscapeSequences.WHITE_KING;
-            case QUEEN -> EscapeSequences.WHITE_QUEEN;
-            case ROOK -> EscapeSequences.WHITE_ROOK;
-            case BISHOP -> EscapeSequences.WHITE_BISHOP;
-            case KNIGHT -> EscapeSequences.WHITE_KNIGHT;
-            case PAWN -> EscapeSequences.WHITE_PAWN;
+            case KING -> EscapeSequences.BLACK_KING;
+            case QUEEN -> EscapeSequences.BLACK_QUEEN;
+            case ROOK -> EscapeSequences.BLACK_ROOK;
+            case BISHOP -> EscapeSequences.BLACK_BISHOP;
+            case KNIGHT -> EscapeSequences.BLACK_KNIGHT;
+            case PAWN -> EscapeSequences.BLACK_PAWN;
         };
     }
 
     private static void setLightColor() {
-        out.print(EscapeSequences.SET_BG_COLOR_WHITE);
+        out.print(EscapeSequences.SET_LIGHT_SQUARE_COLOR);
     }
 
     private static void setDarkColor() {
-        out.print(EscapeSequences.SET_BG_COLOR_BLACK);
+        out.print(EscapeSequences.SET_DARK_SQUARE_COLOR);
     }
 }

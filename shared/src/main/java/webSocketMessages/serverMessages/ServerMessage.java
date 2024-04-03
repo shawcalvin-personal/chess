@@ -15,6 +15,7 @@ public class ServerMessage {
     public String message;
     public String errorMessage;
     public ChessGame game;
+    public int gameID;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -32,6 +33,7 @@ public class ServerMessage {
     public String getMessage() { return message; }
     public String getErrorMessage() { return errorMessage; }
     public ChessGame getGame() { return game; }
+    public int getGameID() { return gameID; }
 
     public static class Builder {
         private ServerMessage serverMessage;
@@ -43,12 +45,17 @@ public class ServerMessage {
             serverMessage.message = message;
             return this;
         }
+
         public Builder errorMessage(String errorMessage) {
             serverMessage.errorMessage = errorMessage;
             return this;
         }
         public Builder game(ChessGame game) {
             serverMessage.game = game;
+            return this;
+        }
+        public Builder gameID(int gameID) {
+            serverMessage.gameID = gameID;
             return this;
         }
         public ServerMessage build() {

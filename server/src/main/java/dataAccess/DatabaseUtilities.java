@@ -1,6 +1,7 @@
 package dataAccess;
 
 import chess.ChessGame;
+import chess.ChessSerializer;
 import com.google.gson.Gson;
 import model.chessModels.AuthData;
 import model.chessModels.GameData;

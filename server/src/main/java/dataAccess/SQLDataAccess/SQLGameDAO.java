@@ -32,6 +32,7 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public GameData create(String gameName) throws DataAccessException {
         ChessGame game = new ChessGame();
+        game.init();
 
         String sql = "INSERT INTO game (game_name, game) VALUES (?, ?)";
         int gameID = DatabaseUtilities.executeUpdate(sql, gameName, game);

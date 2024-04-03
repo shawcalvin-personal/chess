@@ -1,7 +1,6 @@
 package webSocket;
 
 import chess.ChessGame;
-import chess.ChessMove;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -22,71 +21,92 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         UserGameCommand request = new Gson().fromJson(message, UserGameCommand.class);
-        switch (request.getCommandType()) {
-            case JOIN_PLAYER -> joinPlayer(request, session);
-            case JOIN_OBSERVER -> joinObserver();
-            case MAKE_MOVE -> makeMove();
-            case LEAVE -> leave();
-            case RESIGN -> resign();
-        }
-    }
-
-    private void joinPlayer(UserGameCommand request, Session session) throws IOException {
+        connectionManager.add(request.getAuthString(), session, request.getGameID());
         try {
-            validateUserCommand(request);
-
-            connectionManager.add(request.getAuthString(), session);
-            ServerMessage rootNotification = new ServerMessage.Builder(ServerMessage.ServerMessageType.LOAD_GAME)
-                    .game(new ChessGame())
-                    .build();
-            ServerMessage broadcastNotification = new ServerMessage.Builder(ServerMessage.ServerMessageType.NOTIFICATION)
-                    .message(String.format("%s joined the game.", request.getUsername()))
-                    .build();
-            connectionManager.send(session, rootNotification);
-            connectionManager.broadcast(request.getAuthString(), broadcastNotification);
+            service.validateUserGameCommand(request);
+            switch (request.getCommandType()) {
+                case JOIN_PLAYER -> joinGame(request, session, String.format("%s joined the game.", request.getUsername()));
+                case JOIN_OBSERVER -> joinGame(request, session, String.format("%s joined the game as an observer.", request.getUsername()));
+                case MAKE_MOVE -> makeMove(request, session);
+                case LEAVE -> leave(request, session);
+                case RESIGN -> resign(request, session);
+            }
         } catch (InvalidUserCommandException e) {
             System.out.println(e.getMessage());
-            ServerMessage errorNotification = new ServerMessage.Builder(ServerMessage.ServerMessageType.ERROR)
-                    .errorMessage(e.getMessage())
+            sendErrorNotification(request.getAuthString(), request.getGameID(), e.getMessage());
+        }
+    }
+
+    private void joinGame(UserGameCommand request, Session session, String message) throws IOException {
+        try {
+            ServerMessage loadGameMessage = new ServerMessage.Builder(ServerMessage.ServerMessageType.LOAD_GAME)
+                    .game(service.getGame(request.getGameID()))
+                    .gameID(request.getGameID())
                     .build();
-            connectionManager.send(session, errorNotification);
+            ServerMessage notificationMessage = new ServerMessage.Builder(ServerMessage.ServerMessageType.NOTIFICATION)
+                    .message(message)
+                    .gameID(request.getGameID())
+                    .build();
+            connectionManager.send(request.getAuthString(), loadGameMessage);
+            connectionManager.broadcast(request.getAuthString(), notificationMessage);
+        } catch (InvalidUserCommandException e) {
+            System.out.println(e.getMessage());
+            sendErrorNotification(request.getAuthString(), request.getGameID(), e.getMessage());
         }
-
     }
 
-    private void joinObserver() {
-
+    private void makeMove(UserGameCommand request, Session session) throws IOException {
+        try {
+            ChessGame game = service.makeMove(request.getGameID(), request.getMove());
+            ServerMessage loadGameMessage = new ServerMessage.Builder(ServerMessage.ServerMessageType.LOAD_GAME)
+                    .game(game)
+                    .gameID(request.getGameID())
+                    .build();
+            ServerMessage notificationMessage = new ServerMessage.Builder(ServerMessage.ServerMessageType.NOTIFICATION)
+                    .message(String.format("%s made a move: %s", request.getUsername(), request.getMove().toString()))
+                    .gameID(request.getGameID())
+                    .build();
+            connectionManager.broadcast(null, loadGameMessage);
+            connectionManager.broadcast(request.getAuthString(), notificationMessage);
+        } catch (InvalidUserCommandException e) {
+            System.out.println(e.getMessage());
+            sendErrorNotification(request.getAuthString(), request.getGameID(), e.getMessage());
+        }
     }
 
-    private void makeMove() {
-
+    private void leave(UserGameCommand request, Session session) throws IOException {
+        try {
+            service.leave(request.getGameID(), request.getAuthString());
+            ServerMessage notificationMessage = new ServerMessage.Builder(ServerMessage.ServerMessageType.NOTIFICATION)
+                    .message(String.format("%s left the game.", request.getUsername()))
+                    .gameID(request.getGameID())
+                    .build();
+            connectionManager.broadcast(request.getAuthString(), notificationMessage);
+        } catch (InvalidUserCommandException e) {
+            System.out.println(e.getMessage());
+            sendErrorNotification(request.getAuthString(), request.getGameID(), e.getMessage());
+        }
     }
 
-    private void leave() {
-
+    private void resign(UserGameCommand request, Session session) throws IOException {
+        try {
+            service.resign(request.getGameID(), request.getAuthString());
+            ServerMessage notificationMessage = new ServerMessage.Builder(ServerMessage.ServerMessageType.NOTIFICATION)
+                    .message(String.format("%s resigned from the game.", request.getUsername()))
+                    .gameID(request.getGameID())
+                    .build();
+            connectionManager.broadcast(null, notificationMessage);
+        } catch (InvalidUserCommandException e) {
+            System.out.println(e.getMessage());
+            sendErrorNotification(request.getAuthString(), request.getGameID(), e.getMessage());
+        }
     }
 
-    private void resign() {
-
-    }
-
-    private boolean validateUserCommand(UserGameCommand command) throws InvalidUserCommandException {
-        String authToken = command.getAuthString();
-        if (authToken != null && !service.isValidAuth(authToken)) {
-            throw new InvalidUserCommandException("Error parsing user command: invalid auth token!");
-        }
-        Integer gameID = command.getGameID();
-        if (gameID != null && !service.isValidGameID(gameID)) {
-            throw new InvalidUserCommandException("Error parsing user command: invalid game ID!");
-        }
-        ChessGame.TeamColor playerColor = command.getPlayerColor();
-        if (playerColor != null && gameID != null && !service.isValidPlayerColor(gameID, playerColor, authToken)) {
-            throw new InvalidUserCommandException("Error parsing user command: invalid player color!");
-        }
-        ChessMove move = command.getMove();
-        if (move != null && gameID != null && !service.isValidChessMove(gameID, move)) {
-            throw new InvalidUserCommandException("Error parsing user command: invalid chess move!");
-        }
-        return true;
+    private void sendErrorNotification(String authToken, int gameID, String message) throws IOException {
+        ServerMessage errorMessage = new ServerMessage.Builder(ServerMessage.ServerMessageType.ERROR)
+                .errorMessage(message)
+                .gameID(gameID)
+                .build();
+        connectionManager.send(authToken, errorMessage);
     }
 }

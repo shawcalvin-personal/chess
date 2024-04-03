@@ -70,6 +70,18 @@ public class UserGameCommand {
     }
 
     @Override
+    public String toString() {
+        return "UserGameCommand{" +
+                "commandType=" + commandType +
+                ", authToken='" + authToken + '\'' +
+                ", username='" + username + '\'' +
+                ", gameID=" + gameID +
+                ", playerColor=" + playerColor +
+                ", move=" + move +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o)
             return true;

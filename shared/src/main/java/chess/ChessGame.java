@@ -16,10 +16,12 @@ public class ChessGame {
     ChessBoard board;
     TeamColor teamTurn;
     ChessRuleBook ruleBook;
+    boolean isComplete;
     public ChessGame() {
         this.board = null;
         this.teamTurn = null;
         this.ruleBook = new ChessRuleBook();
+        this.isComplete = false;
     }
 
     public void init() {
@@ -27,6 +29,9 @@ public class ChessGame {
         this.board.resetBoard();
         this.teamTurn = TeamColor.WHITE;
     }
+
+    public boolean getIsComplete() { return isComplete; }
+    public void setIsComplete( boolean val ) { isComplete = val; }
 
     /**
      * @return Which team's turn it is

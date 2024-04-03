@@ -1,6 +1,5 @@
-package dataAccess;
+package chess;
 
-import chess.*;
 import chess.ChessRuleBook.*;
 import com.google.gson.*;
 
