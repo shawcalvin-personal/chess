@@ -26,7 +26,6 @@ public class JoinGameService extends Service {
             String whiteUsername = game.whiteUsername();
             String blackUsername = game.blackUsername();
             Collection<String> observerUsernames = game.observerUsernames();
-            System.out.println(observerUsernames);
             String playerUsername = authDAO.get(authToken).username();
             if (playerColor == null) {
                 observerUsernames = game.observerUsernames() == null ? new ArrayList<>() : game.observerUsernames();

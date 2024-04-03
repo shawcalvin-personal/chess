@@ -7,7 +7,6 @@ import java.util.Objects;
 
 /**
  * Represents a command a user can send the server over a websocket
- * 
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */
@@ -24,7 +23,7 @@ public class UserGameCommand {
     protected CommandType commandType;
     private final String authToken;
     private String username;
-    private int gameID;
+    private Integer gameID;
     private ChessGame.TeamColor playerColor;
     private ChessMove move;
 
@@ -35,7 +34,7 @@ public class UserGameCommand {
     public CommandType getCommandType() { return commandType; }
     public String getAuthString() { return authToken; }
     public String getUsername() { return username; }
-    public int getGameID() { return gameID; }
+    public Integer getGameID() { return gameID; }
     public ChessGame.TeamColor getPlayerColor() { return playerColor; }
     public ChessMove getMove() { return move; }
 
@@ -53,7 +52,7 @@ public class UserGameCommand {
             command.username = username;
             return this;
         }
-        public Builder gameID(int gameID) {
+        public Builder gameID(Integer gameID) {
             command.gameID = gameID;
             return this;
         }

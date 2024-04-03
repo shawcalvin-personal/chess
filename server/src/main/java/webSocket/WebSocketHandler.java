@@ -1,10 +1,12 @@
 package webSocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import service.ChessService;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
@@ -15,6 +17,7 @@ import java.io.IOException;
 public class WebSocketHandler {
 
     private final ConnectionManager connectionManager = new ConnectionManager();
+    private final ChessService service = new ChessService();
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
@@ -29,20 +32,26 @@ public class WebSocketHandler {
     }
 
     private void joinPlayer(UserGameCommand request, Session session) throws IOException {
-        // test if player spot is open
+        try {
+            validateUserCommand(request);
 
-        // if not open, send ERROR
+            connectionManager.add(request.getAuthString(), session);
+            ServerMessage rootNotification = new ServerMessage.Builder(ServerMessage.ServerMessageType.LOAD_GAME)
+                    .game(new ChessGame())
+                    .build();
+            ServerMessage broadcastNotification = new ServerMessage.Builder(ServerMessage.ServerMessageType.NOTIFICATION)
+                    .message(String.format("%s joined the game.", request.getUsername()))
+                    .build();
+            connectionManager.send(session, rootNotification);
+            connectionManager.broadcast(request.getAuthString(), broadcastNotification);
+        } catch (InvalidUserCommandException e) {
+            System.out.println(e.getMessage());
+            ServerMessage errorNotification = new ServerMessage.Builder(ServerMessage.ServerMessageType.ERROR)
+                    .errorMessage(e.getMessage())
+                    .build();
+            connectionManager.send(session, errorNotification);
+        }
 
-        // if open, join game as specified color and broadcast changes
-        connectionManager.add(request.getAuthString(), session);
-        ServerMessage rootNotification = new ServerMessage.Builder(ServerMessage.ServerMessageType.LOAD_GAME)
-            .game(new ChessGame())
-            .build();
-        ServerMessage broadcastNotification = new ServerMessage.Builder(ServerMessage.ServerMessageType.NOTIFICATION)
-            .message(String.format("%s joined the game.", request.getUsername()))
-            .build();
-        connectionManager.send(session, rootNotification);
-        connectionManager.broadcast(request.getAuthString(), broadcastNotification);
     }
 
     private void joinObserver() {
@@ -59,5 +68,25 @@ public class WebSocketHandler {
 
     private void resign() {
 
+    }
+
+    private boolean validateUserCommand(UserGameCommand command) throws InvalidUserCommandException {
+        String authToken = command.getAuthString();
+        if (authToken != null && !service.isValidAuth(authToken)) {
+            throw new InvalidUserCommandException("Error parsing user command: invalid auth token!");
+        }
+        Integer gameID = command.getGameID();
+        if (gameID != null && !service.isValidGameID(gameID)) {
+            throw new InvalidUserCommandException("Error parsing user command: invalid game ID!");
+        }
+        ChessGame.TeamColor playerColor = command.getPlayerColor();
+        if (playerColor != null && gameID != null && !service.isValidPlayerColor(gameID, playerColor, authToken)) {
+            throw new InvalidUserCommandException("Error parsing user command: invalid player color!");
+        }
+        ChessMove move = command.getMove();
+        if (move != null && gameID != null && !service.isValidChessMove(gameID, move)) {
+            throw new InvalidUserCommandException("Error parsing user command: invalid chess move!");
+        }
+        return true;
     }
 }

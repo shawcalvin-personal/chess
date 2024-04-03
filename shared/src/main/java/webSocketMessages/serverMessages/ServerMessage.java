@@ -7,13 +7,13 @@ import java.util.Objects;
 
 /**
  * Represents a Message the server can send through a WebSocket
- * 
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */
 public class ServerMessage {
     ServerMessageType serverMessageType;
     public String message;
+    public String errorMessage;
     public ChessGame game;
 
     public enum ServerMessageType {
@@ -30,6 +30,7 @@ public class ServerMessage {
         return this.serverMessageType;
     }
     public String getMessage() { return message; }
+    public String getErrorMessage() { return errorMessage; }
     public ChessGame getGame() { return game; }
 
     public static class Builder {
@@ -40,6 +41,10 @@ public class ServerMessage {
         }
         public Builder message(String message) {
             serverMessage.message = message;
+            return this;
+        }
+        public Builder errorMessage(String errorMessage) {
+            serverMessage.errorMessage = errorMessage;
             return this;
         }
         public Builder game(ChessGame game) {
