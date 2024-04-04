@@ -1,6 +1,7 @@
 package chess.ChessRuleBook;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 import chess.*;
@@ -26,6 +27,27 @@ public abstract class MovementRule {
         if (positionIsOnBoard(move.getEndPosition()) && (positionIsEmpty(board, move.getEndPosition()) || positionIsCapturable(board, move.getStartPosition(), move.getEndPosition()))) {
             validMoves.add(move);
         }
+    }
+
+    public Collection<ChessMove> getValidSlidingMoves(ChessBoard board, ChessPosition position, int[][] moveDirections) {
+        Collection<ChessMove> validMoves = new HashSet<>();
+        for (int[] moveDirection : moveDirections) {
+            for (int j = 1; j < 8; j++) {
+                ChessPosition endPosition = new ChessPosition(position.getRow() + moveDirection[0] * j, position.getColumn() + moveDirection[1] * j);
+                if (!positionIsOnBoard(endPosition)) {
+                    break;
+                } else if (positionIsEmpty(board, endPosition)) {
+                    validMoves.add(new ChessMove(position, endPosition, null));
+                } else if (positionIsCapturable(board, position, endPosition)) {
+                    validMoves.add(new ChessMove(position, endPosition, null));
+                    break;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return validMoves;
     }
 
     @Override

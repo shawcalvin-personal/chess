@@ -27,7 +27,7 @@ public class ChessClient {
     int gameID;
     private final String serverUrl;
     private final ClientNotificationHandler notificationHandler;
-    private final String EMPTY = "";
+    private final String emptyString = "";
 
     public ChessClient(String serverUrl, ClientNotificationHandler notificationHandler) {
         this.serverUrl = serverUrl;
@@ -156,7 +156,7 @@ public class ChessClient {
         ws = new WebSocketFacade(serverUrl, notificationHandler);
         ws.joinPlayer(auth, gameID, playerColor);
         notificationHandler.setPlayerColor(playerColor);
-        return EMPTY;
+        return emptyString;
 
     }
     public String joinObserver(String... params) throws ResponseException {
@@ -169,7 +169,7 @@ public class ChessClient {
         server.joinGame(new JoinGameRequest(gameID, null), auth);
         ws = new WebSocketFacade(serverUrl, notificationHandler);
         ws.joinObserver(auth, gameID);
-        return EMPTY;
+        return emptyString;
     }
 
     public String quit() throws ResponseException {
@@ -179,24 +179,24 @@ public class ChessClient {
     public String makeMove(String... params) throws ResponseException {
         ChessMove move = getChessMove(params);
         ws.makeMove(auth, gameID, move);
-        return EMPTY;
+        return emptyString;
     }
 
     public String leave() throws ResponseException {
         this.userState = State.SIGNED_IN;
         ws.leave(auth, gameID);
-        return EMPTY;
+        return emptyString;
     }
 
     public String resign() throws ResponseException {
         this.userState = State.SIGNED_IN;
         ws.resign(auth, gameID);
-        return EMPTY;
+        return emptyString;
     }
 
     public String redraw() throws ResponseException {
         notificationHandler.printBoard(null);
-        return EMPTY;
+        return emptyString;
     }
 
     public String highlightValidMoves(String... params) throws ResponseException {
@@ -205,7 +205,7 @@ public class ChessClient {
             throw new ResponseException(400, "Expected: <chess-position>\n  ex: [a4]");
         }
         notificationHandler.printBoard(getChessPosition(params[0]));
-        return EMPTY;
+        return emptyString;
     }
 
     public String clear() throws ResponseException {

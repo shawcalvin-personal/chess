@@ -3,9 +3,6 @@ package chess;
 import chess.ChessRuleBook.*;
 import com.google.gson.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 public class ChessSerializer {
     public static Gson createSerializer() {
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -36,13 +33,5 @@ public class ChessSerializer {
 
     public static ChessGame deserializeChessGame(String serializedGame) {
         return ChessSerializer.createSerializer().fromJson(serializedGame, ChessGame.class);
-    }
-
-    public static Collection<String> deserializeObserverUsernames(String serializedObserverUsernames) {
-        return new Gson().fromJson(serializedObserverUsernames, ArrayList.class);
-    }
-
-    public static String serializeObserverUsernames(Collection<String> observerUsernames) {
-        return new Gson().toJson(observerUsernames);
     }
 }
