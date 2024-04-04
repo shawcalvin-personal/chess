@@ -28,6 +28,7 @@ public class WebSocketFacade extends Endpoint {
             this.session = container.connectToServer(this, socketURI);
 
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
                 public void onMessage(String message) {
                     try {
                         ServerMessage notification = ChessSerializer.createSerializer().fromJson(message, ServerMessage.class);
